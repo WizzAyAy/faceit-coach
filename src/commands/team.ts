@@ -37,7 +37,7 @@ export default {
     const scores = calculateMapScores(analysis)
 
     const sorted = CS2_MAP_POOL
-      .map(map => ({ map, score: scores[map] }))
+      .map(map => ({ map, score: scores[map].score }))
       .sort((a, b) => b.score - a.score)
 
     const strongMaps = sorted.slice(0, 3).map(m => ({

@@ -29,6 +29,6 @@ describe('constants', () => {
 
   it('should have reasonable defaults', () => {
     expect(DEFAULT_MATCH_COUNT).toBe(50)
-    expect(UNCERTAINTY_THRESHOLD).toBe(5)
+    expect(UNCERTAINTY_THRESHOLD).toBe(10)
   })
 })

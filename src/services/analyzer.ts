@@ -1,8 +1,10 @@
 import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types/index.js'
-import { CS2_MAP_POOL, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
+import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
 import { faceitApi } from './faceit-api.js'
 
 export function calculatePlayerWeight(playerElo: number, averageElo: number): number {
+  if (averageElo === 0)
+    return 1
   return playerElo / averageElo
 }
 
@@ -13,49 +15,95 @@ export function adjustWinrateForUncertainty(winrate: number, matchCount: number)
   return winrate * confidence + 0.5 * (1 - confidence)
 }
 
-export function calculateMapScores(players: PlayerAnalysis[]): Record<string, number> {
-  const scores: Record<string, number> = {}
+/**
+ * Normalize K/D ratio to a 0-1 scale centered around 1.0 K/D = 0.5
+ * A K/D of 2.0 → ~0.67, K/D of 0.5 → ~0.33
+ */
+function normalizeKd(kd: number): number {
+  return kd / (kd + 1)
+}
+
+export interface MapAnalysis {
+  map: string
+  ourScore: number
+  theirScore: number
+  advantage: number
+  confidence: 'high' | 'medium' | 'low'
+  ourTotalMatches: number
+  theirTotalMatches: number
+}
+
+export function calculateMapScores(players: PlayerAnalysis[]): Record<string, { score: number, totalMatches: number }> {
+  const scores: Record<string, { score: number, totalMatches: number }> = {}
 
   for (const map of CS2_MAP_POOL) {
-    let totalWeightedWinrate = 0
+    let totalWeightedScore = 0
     let totalWeight = 0
+    let totalMatches = 0
 
     for (const player of players) {
       const mapStat = player.mapStats.find(s => s.map === map)
       const rawWinrate = mapStat ? mapStat.winrate : 0.5
       const matchCount = mapStat ? mapStat.matches : 0
-      const adjustedWinrate = adjustWinrateForUncertainty(rawWinrate, matchCount)
+      const kd = mapStat ? mapStat.kdRatio : 1.0
 
-      totalWeightedWinrate += adjustedWinrate * player.weight
+      totalMatches += matchCount
+
+      const adjustedWinrate = adjustWinrateForUncertainty(rawWinrate, matchCount)
+      const adjustedKd = adjustWinrateForUncertainty(normalizeKd(kd), matchCount)
+      const eloFactor = player.weight // already normalized around 1.0
+
+      // Combined score: winrate + K/D + ELO factor
+      const playerScore = adjustedWinrate * SCORE_WEIGHTS.WINRATE
+        + adjustedKd * SCORE_WEIGHTS.KD
+        + eloFactor * SCORE_WEIGHTS.ELO
+
+      totalWeightedScore += playerScore * player.weight
       totalWeight += player.weight
     }
 
-    scores[map] = totalWeight > 0 ? totalWeightedWinrate / totalWeight : 0.5
+    scores[map] = {
+      score: totalWeight > 0 ? totalWeightedScore / totalWeight : 0.5,
+      totalMatches,
+    }
   }
 
   return scores
 }
 
+function getConfidence(ourMatches: number, theirMatches: number): 'high' | 'medium' | 'low' {
+  const total = ourMatches + theirMatches
+  if (total >= CONFIDENCE.HIGH * 2)
+    return 'high'
+  if (total >= CONFIDENCE.MEDIUM * 2)
+    return 'medium'
+  return 'low'
+}
+
 export function computePickBan(
-  ourScores: Record<string, number>,
-  theirScores: Record<string, number>,
+  ourScores: Record<string, { score: number, totalMatches: number }>,
+  theirScores: Record<string, { score: number, totalMatches: number }>,
 ): PickBanResult {
   const allMaps: MapScore[] = Object.keys(ourScores)
-    .map(map => ({
-      map,
-      ourScore: ourScores[map],
-      theirScore: theirScores[map],
-      advantage: ourScores[map] - theirScores[map],
-    }))
+    .map((map) => {
+      const our = ourScores[map]
+      const their = theirScores[map]
+      return {
+        map,
+        ourScore: our.score,
+        theirScore: their.score,
+        advantage: our.score - their.score,
+        confidence: getConfidence(our.totalMatches, their.totalMatches),
+        ourTotalMatches: our.totalMatches,
+        theirTotalMatches: their.totalMatches,
+      }
+    })
     .sort((a, b) => b.advantage - a.advantage)
 
-  const pickThreshold = 0.03
-  const banThreshold = -0.03
-
   return {
-    picks: allMaps.filter(m => m.advantage >= pickThreshold),
-    neutral: allMaps.filter(m => m.advantage > banThreshold && m.advantage < pickThreshold),
-    bans: allMaps.filter(m => m.advantage <= banThreshold),
+    picks: allMaps.filter(m => m.advantage >= PICK_THRESHOLD),
+    neutral: allMaps.filter(m => m.advantage > BAN_THRESHOLD && m.advantage < PICK_THRESHOLD),
+    bans: allMaps.filter(m => m.advantage <= BAN_THRESHOLD),
     allMaps,
   }
 }
@@ -82,7 +130,6 @@ export async function analyzeTeam(
     const elo = player.games.cs2?.faceit_elo ?? 1000
     const gameStats = allGameStats[i]
 
-    // Compute per-map stats from recent N matches
     const mapStatsMap = new Map<string, { wins: number, total: number, kdSum: number, hsSum: number }>()
 
     for (const game of gameStats) {

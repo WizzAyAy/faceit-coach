@@ -52,10 +52,14 @@ export default {
       const mapSegment = allStats[i].segments.find(s => s.label === map && s.type === 'Map')
       const mapWinrate = mapSegment ? Number(mapSegment.stats['Win Rate %']) / 100 : 0.5
 
+      // Estimate side-specific winrates using map CT bias
+      const ctWinrate = Math.min(1, Math.max(0, mapWinrate + (ctBias - 0.5)))
+      const tWinrate = Math.min(1, Math.max(0, mapWinrate - (ctBias - 0.5)))
+
       return {
         nickname: player.nickname,
-        ctWinrate: mapWinrate,
-        tWinrate: mapWinrate,
+        ctWinrate,
+        tWinrate,
       }
     })
 

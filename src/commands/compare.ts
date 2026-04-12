@@ -58,7 +58,7 @@ export default {
         map,
         wr1: seg1 ? `${seg1.stats['Win Rate %']}%` : 'N/A',
         wr2: seg2 ? `${seg2.stats['Win Rate %']}%` : 'N/A',
-        winner: wr1 >= wr2 ? nick1 : nick2,
+        winner: wr1 === wr2 ? '' : wr1 > wr2 ? nick1 : nick2,
       }
     })
 

@@ -6,12 +6,12 @@ describe('embeds', () => {
   describe('pickBanEmbed', () => {
     it('should create embed with all maps sorted by advantage', () => {
       const result: PickBanResult = {
-        picks: [{ map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20 }],
+        picks: [{ map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 }],
         neutral: [],
-        bans: [{ map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20 }],
+        bans: [{ map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 }],
         allMaps: [
-          { map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20 },
-          { map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20 },
+          { map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 },
+          { map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 },
         ],
       }
 
@@ -24,12 +24,12 @@ describe('embeds', () => {
       expect(json.description).toContain('Nuke')
     })
 
-    it('should show correct percentages', () => {
+    it('should show confidence icons and match counts', () => {
       const result: PickBanResult = {
         picks: [],
-        neutral: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02 }],
+        neutral: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 }],
         bans: [],
-        allMaps: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02 }],
+        allMaps: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 }],
       }
 
       const embed = pickBanEmbed(result)
@@ -37,6 +37,9 @@ describe('embeds', () => {
       expect(json.description).toContain('51%')
       expect(json.description).toContain('49%')
       expect(json.description).toContain('NEUTRE')
+      expect(json.description).toContain('⚠️')
+      expect(json.description).toContain('5+3 matchs')
+      expect(json.footer?.text).toContain('Fiable')
     })
   })
 

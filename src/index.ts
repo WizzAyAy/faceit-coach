@@ -55,12 +55,17 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
   catch (error) {
     console.error(`Error executing ${interaction.commandName}:`, error)
-    const { errorEmbed } = await import('./utils/embeds.js')
-    const content = { embeds: [errorEmbed('Une erreur inattendue est survenue.')] }
-    if (interaction.replied || interaction.deferred)
-      await interaction.followUp(content)
-    else
-      await interaction.reply(content)
+    try {
+      const { errorEmbed } = await import('./utils/embeds.js')
+      const content = { embeds: [errorEmbed('Une erreur inattendue est survenue.')] }
+      if (interaction.replied || interaction.deferred)
+        await interaction.followUp(content)
+      else
+        await interaction.reply(content)
+    }
+    catch (replyError) {
+      console.error('Failed to send error reply:', replyError)
+    }
   }
 })
 

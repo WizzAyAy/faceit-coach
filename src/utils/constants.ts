@@ -41,4 +41,22 @@ export const CACHE_TTL = {
 } as const
 
 export const DEFAULT_MATCH_COUNT = 50
-export const UNCERTAINTY_THRESHOLD = 5
+export const UNCERTAINTY_THRESHOLD = 10
+
+// Scoring weights for map analysis
+export const SCORE_WEIGHTS = {
+  WINRATE: 0.5,
+  KD: 0.3,
+  ELO: 0.2,
+} as const
+
+// Pick/ban thresholds
+export const PICK_THRESHOLD = 0.08
+export const BAN_THRESHOLD = -0.08
+
+// Confidence levels based on total team matches on a map
+export const CONFIDENCE = {
+  HIGH: 30, // >= 30 total team matches on a map
+  MEDIUM: 15, // >= 15
+  // below 15 = low
+} as const

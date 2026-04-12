@@ -1,6 +1,6 @@
-import type { PickBanResult, PredictionResult, StratsResult } from '../types/index.js'
+import type { MapScore, PickBanResult, PredictionResult, StratsResult } from '../types/index.js'
 import { EmbedBuilder } from 'discord.js'
-import { MAP_DISPLAY_NAMES } from './constants.js'
+import { BAN_THRESHOLD, MAP_DISPLAY_NAMES, PICK_THRESHOLD } from './constants.js'
 
 function mapName(map: string): string {
   return MAP_DISPLAY_NAMES[map] ?? map
@@ -10,22 +10,32 @@ function pct(value: number): string {
   return `${Math.round(value * 100)}%`
 }
 
-function advantageLabel(advantage: number): string {
-  if (advantage >= 0.03)
+function strengthLabel(advantage: number): string {
+  if (advantage >= PICK_THRESHOLD)
     return '🟢 PICK'
-  if (advantage <= -0.03)
+  if (advantage <= BAN_THRESHOLD)
     return '🔴 BAN'
   return '🟡 NEUTRE'
 }
 
+function confidenceIcon(confidence: MapScore['confidence']): string {
+  if (confidence === 'high')
+    return '📊'
+  if (confidence === 'medium')
+    return '📉'
+  return '⚠️'
+}
+
 export function pickBanEmbed(result: PickBanResult): EmbedBuilder {
-  const lines = result.allMaps.map(m =>
-    `${advantageLabel(m.advantage)}  **${mapName(m.map)}** — Vous: ${pct(m.ourScore)} | Eux: ${pct(m.theirScore)} | Avantage: ${m.advantage >= 0 ? '+' : ''}${pct(m.advantage)}`,
-  )
+  const lines = result.allMaps.map((m) => {
+    const sign = m.advantage >= 0 ? '+' : ''
+    return `${strengthLabel(m.advantage)}  **${mapName(m.map)}** ${sign}${pct(m.advantage)} ${confidenceIcon(m.confidence)}\n> Vous: ${pct(m.ourScore)} | Eux: ${pct(m.theirScore)} | Data: ${m.ourTotalMatches}+${m.theirTotalMatches} matchs`
+  })
 
   return new EmbedBuilder()
     .setTitle('📊 Analyse Pick & Ban')
-    .setDescription(lines.join('\n'))
+    .setDescription(lines.join('\n\n'))
+    .setFooter({ text: '📊 Fiable | 📉 Moyen | ⚠️ Peu de données' })
     .setColor(0x00AE86)
     .setTimestamp()
 }
@@ -76,7 +86,7 @@ export function compareEmbed(
     `**${k}:** ${stats1[k]} vs ${stats2[k]}`,
   )
   const mapLines = mapComparison.map(m =>
-    `**${mapName(m.map)}:** ${m.wr1} vs ${m.wr2} ${m.winner === nick1 ? '⬅️' : '➡️'}`,
+    `**${mapName(m.map)}:** ${m.wr1} vs ${m.wr2} ${m.winner === nick1 ? '⬅️' : m.winner === nick2 ? '➡️' : '🤝'}`,
   )
 
   return new EmbedBuilder()
@@ -98,7 +108,7 @@ export function predictionEmbed(
     `**${mapName(p.map)}:** ${team1Name} ${pct(p.team1WinProbability)} — ${pct(p.team2WinProbability)} ${team2Name}`,
   )
 
-  const topPlayers = predictions[0]?.keyPlayers.slice(0, 3)
+  const topPlayers = predictions[0]?.keyPlayers?.slice(0, 3)
     .map(kp => `${kp.nickname}`)
     .join(', ')
 

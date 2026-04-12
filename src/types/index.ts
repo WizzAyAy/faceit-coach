@@ -188,6 +188,9 @@ export interface MapScore {
   ourScore: number
   theirScore: number
   advantage: number
+  confidence: 'high' | 'medium' | 'low'
+  ourTotalMatches: number
+  theirTotalMatches: number
 }
 
 export interface PickBanResult {
