@@ -1,20 +1,18 @@
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import type { StratsResult } from '../types'
-import { faceitApi } from '../services/faceit-api'
-import { errorEmbed, stratsEmbed } from '../utils/embeds'
-import { CS2_MAP_POOL } from '../utils/constants'
+import type { BotCommand, StratsResult } from '../types/index.js'
+import { SlashCommandBuilder } from 'discord.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { CS2_MAP_POOL } from '../utils/constants.js'
+import { errorEmbed, stratsEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()
     .setName('strats')
     .setDescription('Recommande le côté à choisir (CT/T) sur une map')
     .addStringOption(opt =>
-      opt.setName('map').setDescription('Map CS2').setRequired(true)
-        .addChoices(
-          ...CS2_MAP_POOL.map(m => ({ name: m.replace('de_', ''), value: m })),
-        ),
+      opt.setName('map').setDescription('Map CS2').setRequired(true).addChoices(
+        ...CS2_MAP_POOL.map(m => ({ name: m.replace('de_', ''), value: m })),
+      ),
     )
     .addStringOption(opt => opt.setName('j1').setDescription('Joueur 1'))
     .addStringOption(opt => opt.setName('j2').setDescription('Joueur 2'))
@@ -60,11 +58,13 @@ export default {
         const kd = Number(match.kd_ratio) || 1
         if (kd >= 1.1) {
           tTotal++
-          if (won) tWins++
+          if (won)
+            tWins++
         }
         else {
           ctTotal++
-          if (won) ctWins++
+          if (won)
+            ctWins++
         }
       }
 

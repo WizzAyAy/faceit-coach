@@ -1,6 +1,6 @@
+import type { BotCommand } from './types/index.js'
 import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
-import type { BotCommand } from './types'
-import { config } from './config'
+import { config } from './config.js'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 const commands = new Collection<string, BotCommand>()
@@ -33,10 +33,12 @@ async function registerSlashCommands(): Promise<void> {
     { body: commandData },
   )
 
+  // eslint-disable-next-line no-console
   console.log(`Registered ${commandData.length} slash commands`)
 }
 
 client.once(Events.ClientReady, (c) => {
+  // eslint-disable-next-line no-console
   console.log(`Bot ready as ${c.user.tag}`)
 })
 

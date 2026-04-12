@@ -1,10 +1,10 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import { analyzeLobby } from '../services/analyzer'
-import { faceitApi } from '../services/faceit-api'
-import { errorEmbed, pickBanEmbed } from '../utils/embeds'
-import { DEFAULT_MATCH_COUNT } from '../utils/constants'
+import type { BotCommand } from '../types/index.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
+import { analyzeLobby } from '../services/analyzer.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { DEFAULT_MATCH_COUNT } from '../utils/constants.js'
+import { errorEmbed, pickBanEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()

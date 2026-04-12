@@ -1,6 +1,6 @@
-import type { FaceitPlayerStats, MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types'
-import { CS2_MAP_POOL, UNCERTAINTY_THRESHOLD } from '../utils/constants'
-import { faceitApi } from './faceit-api'
+import type { FaceitPlayerStats, MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types/index.js'
+import { CS2_MAP_POOL, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
+import { faceitApi } from './faceit-api.js'
 
 export function calculatePlayerWeight(playerElo: number, averageElo: number): number {
   return playerElo / averageElo
@@ -75,7 +75,7 @@ export function computePickBan(
 
 export async function analyzeTeam(
   playerIds: string[],
-  matchCount: number,
+  _matchCount: number,
 ): Promise<PlayerAnalysis[]> {
   const players = await Promise.all(
     playerIds.map(id => faceitApi.getPlayer(id)),

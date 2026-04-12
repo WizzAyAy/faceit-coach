@@ -4,10 +4,10 @@ import type {
   FaceitMatchHistory,
   FaceitPlayer,
   FaceitPlayerStats,
-} from '../types'
-import { config } from '../config'
-import { CACHE_TTL, FACEIT_API_BASE } from '../utils/constants'
-import { cache } from './cache'
+} from '../types/index.js'
+import { config } from '../config.js'
+import { CACHE_TTL, FACEIT_API_BASE } from '../utils/constants.js'
+import { cache } from './cache.js'
 
 async function faceitFetch<T>(path: string, retries = 3): Promise<T> {
   const url = `${FACEIT_API_BASE}${path}`

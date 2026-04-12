@@ -1,5 +1,5 @@
-import type { PlayerAnalysis, PredictionResult } from '../types'
-import { adjustWinrateForUncertainty } from './analyzer'
+import type { PlayerAnalysis, PredictionResult } from '../types/index.js'
+import { adjustWinrateForUncertainty } from './analyzer.js'
 
 export function predictWinner(
   team1: PlayerAnalysis[],

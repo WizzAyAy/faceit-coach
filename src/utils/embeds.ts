@@ -1,6 +1,6 @@
+import type { PickBanResult, PredictionResult, StratsResult } from '../types/index.js'
 import { EmbedBuilder } from 'discord.js'
-import type { MapScore, PickBanResult, PredictionResult, StratsResult } from '../types'
-import { MAP_DISPLAY_NAMES } from './constants'
+import { MAP_DISPLAY_NAMES } from './constants.js'
 
 function mapName(map: string): string {
   return MAP_DISPLAY_NAMES[map] ?? map

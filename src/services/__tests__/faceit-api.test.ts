@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { faceitApi } from '../faceit-api'
-import { cache } from '../cache'
+import { cache } from '../cache.js'
+import { faceitApi } from '../faceit-api.js'
 
 // Mock undici fetch
 const mockFetch = vi.fn()
@@ -54,7 +54,8 @@ describe('faceitApi', () => {
       })
 
       await expect(faceitApi.getPlayerByNickname('Unknown'))
-        .rejects.toThrow('Player "Unknown" not found on FACEIT')
+        .rejects
+        .toThrow('Player "Unknown" not found on FACEIT')
     })
   })
 
@@ -63,7 +64,7 @@ describe('faceitApi', () => {
       const mockStats = {
         player_id: 'p1',
         game_id: 'cs2',
-        lifetime: { Matches: '100', 'Win Rate %': '55' },
+        lifetime: { 'Matches': '100', 'Win Rate %': '55' },
         segments: [],
       }
       mockFetch.mockResolvedValueOnce({

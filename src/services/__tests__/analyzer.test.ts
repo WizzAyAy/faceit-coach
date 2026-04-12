@@ -1,5 +1,12 @@
+import type { PlayerAnalysis } from '../../types/index.js'
 import { describe, expect, it, vi } from 'vitest'
-import type { PlayerAnalysis } from '../../types'
+
+import {
+  adjustWinrateForUncertainty,
+  calculateMapScores,
+  calculatePlayerWeight,
+  computePickBan,
+} from '../analyzer.js'
 
 // Mock config to avoid requiring env vars
 vi.mock('../../config', () => ({
@@ -9,13 +16,6 @@ vi.mock('../../config', () => ({
     faceitApiKey: 'test-api-key',
   },
 }))
-
-import {
-  adjustWinrateForUncertainty,
-  calculateMapScores,
-  calculatePlayerWeight,
-  computePickBan,
-} from '../analyzer'
 
 describe('analyzer', () => {
   describe('calculatePlayerWeight', () => {

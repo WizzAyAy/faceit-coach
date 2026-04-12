@@ -1,10 +1,10 @@
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
-import { analyzeTeam, calculateMapScores } from '../services/analyzer'
-import { errorEmbed, teamEmbed } from '../utils/embeds'
-import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT } from '../utils/constants'
+import type { BotCommand } from '../types/index.js'
+import { SlashCommandBuilder } from 'discord.js'
+import { analyzeTeam, calculateMapScores } from '../services/analyzer.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT } from '../utils/constants.js'
+import { errorEmbed, teamEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()

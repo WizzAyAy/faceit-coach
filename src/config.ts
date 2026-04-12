@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 function requireEnv(name: string): string {
   const value = process.env[name]
   if (!value) {

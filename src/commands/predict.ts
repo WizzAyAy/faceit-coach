@@ -1,11 +1,11 @@
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
-import { analyzeTeam } from '../services/analyzer'
-import { predictWinner } from '../services/predictor'
-import { errorEmbed, predictionEmbed } from '../utils/embeds'
-import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT } from '../utils/constants'
+import type { BotCommand } from '../types/index.js'
+import { SlashCommandBuilder } from 'discord.js'
+import { analyzeTeam } from '../services/analyzer.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { predictWinner } from '../services/predictor.js'
+import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT } from '../utils/constants.js'
+import { errorEmbed, predictionEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()
@@ -43,8 +43,8 @@ export default {
       predictWinner(team1Analysis, team2Analysis, map),
     )
 
-    const team1Name = match.teams.faction1.players.map(p => p.nickname).slice(0, 2).join(', ') + '...'
-    const team2Name = match.teams.faction2.players.map(p => p.nickname).slice(0, 2).join(', ') + '...'
+    const team1Name = `${match.teams.faction1.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
+    const team2Name = `${match.teams.faction2.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
 
     await interaction.editReply({
       embeds: [predictionEmbed(team1Name, team2Name, predictions)],

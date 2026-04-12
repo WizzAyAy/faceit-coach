@@ -1,5 +1,7 @@
+import type { PlayerAnalysis } from '../../types/index.js'
 import { describe, expect, it, vi } from 'vitest'
-import type { PlayerAnalysis } from '../../types'
+
+import { predictWinner } from '../predictor.js'
 
 // Mock config to avoid requiring env vars
 vi.mock('../../config', () => ({
@@ -9,8 +11,6 @@ vi.mock('../../config', () => ({
     faceitApiKey: 'test-api-key',
   },
 }))
-
-import { predictWinner } from '../predictor'
 
 describe('predictor', () => {
   const makePlayer = (elo: number, winrate: number, nickname: string): PlayerAnalysis => ({

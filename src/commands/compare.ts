@@ -1,9 +1,9 @@
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
-import { compareEmbed, errorEmbed } from '../utils/embeds'
-import { CS2_MAP_POOL } from '../utils/constants'
+import type { BotCommand } from '../types/index.js'
+import { SlashCommandBuilder } from 'discord.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { CS2_MAP_POOL } from '../utils/constants.js'
+import { compareEmbed, errorEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()
@@ -39,13 +39,13 @@ export default {
     ])
 
     const globalStats1: Record<string, string> = {
-      ELO: String(player1.games.cs2?.faceit_elo ?? 'N/A'),
-      Winrate: `${stats1.lifetime['Win Rate %']}%`,
+      'ELO': String(player1.games.cs2?.faceit_elo ?? 'N/A'),
+      'Winrate': `${stats1.lifetime['Win Rate %']}%`,
       'K/D': stats1.lifetime['Average K/D Ratio'] || stats1.lifetime['K/D Ratio'],
     }
     const globalStats2: Record<string, string> = {
-      ELO: String(player2.games.cs2?.faceit_elo ?? 'N/A'),
-      Winrate: `${stats2.lifetime['Win Rate %']}%`,
+      'ELO': String(player2.games.cs2?.faceit_elo ?? 'N/A'),
+      'Winrate': `${stats2.lifetime['Win Rate %']}%`,
       'K/D': stats2.lifetime['Average K/D Ratio'] || stats2.lifetime['K/D Ratio'],
     }
 

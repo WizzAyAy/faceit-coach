@@ -1,9 +1,9 @@
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
-import { errorEmbed } from '../utils/embeds'
-import { MAP_DISPLAY_NAMES } from '../utils/constants'
+import type { BotCommand } from '../types/index.js'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import { faceitApi } from '../services/faceit-api.js'
+import { MAP_DISPLAY_NAMES } from '../utils/constants.js'
+import { errorEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()

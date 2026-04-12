@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cache } from '../cache'
+import { cache } from '../cache.js'
 
 describe('cache', () => {
   afterEach(() => {
