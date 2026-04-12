@@ -33,11 +33,12 @@ export interface FaceitMatchTeamRoster {
 }
 
 export interface FaceitMatchTeam {
-  team_id: string
-  nickname: string
+  faction_id: string
+  leader: string
+  name: string
   avatar: string
   type: string
-  players: FaceitMatchTeamRoster[]
+  roster: FaceitMatchTeamRoster[]
 }
 
 export interface FaceitMatch {
@@ -53,8 +54,12 @@ export interface FaceitMatch {
     faction2: FaceitMatchTeam
   }
   voting: {
-    map: {
-      pick: string[]
+    map?: {
+      pick?: string[]
+      entities?: { class_name: string, name: string }[]
+    }
+    location?: {
+      pick?: string[]
     }
   } | null
   status: 'READY' | 'ONGOING' | 'FINISHED' | 'CANCELLED'
@@ -139,17 +144,23 @@ export interface FaceitMatchHistoryItem {
   }>
 }
 
-export interface FaceitGameStats {
-  player_id: string
-  match_id: string
-  map: string
-  result: string
-  kills: string
-  deaths: string
-  assists: string
-  headshots_percentage: string
-  kr_ratio: string
-  kd_ratio: string
+export interface FaceitGameStatsResponse {
+  items: { stats: FaceitGameStatsItem }[]
+  start: number
+  end: number
+}
+
+export interface FaceitGameStatsItem {
+  'Player Id': string
+  'Match Id': string
+  'Map': string
+  'Result': string
+  'Kills': string
+  'Deaths': string
+  'Assists': string
+  'Headshots %': string
+  'K/R Ratio': string
+  'K/D Ratio': string
   [key: string]: string
 }
 

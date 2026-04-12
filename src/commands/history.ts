@@ -32,8 +32,8 @@ export default {
 
     const team1 = match.teams.faction1
     const team2 = match.teams.faction2
-    const team1Names = team1.players.map(p => p.nickname).join(', ')
-    const team2Names = team2.players.map(p => p.nickname).join(', ')
+    const team1Names = team1.roster.map(p => p.nickname).join(', ')
+    const team2Names = team2.roster.map(p => p.nickname).join(', ')
 
     const embed = new EmbedBuilder()
       .setTitle(`📜 Room ${roomId.slice(0, 8)}...`)

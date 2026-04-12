@@ -28,8 +28,8 @@ export default {
       return
     }
 
-    const team1Ids = match.teams.faction1.players.map(p => p.player_id)
-    const team2Ids = match.teams.faction2.players.map(p => p.player_id)
+    const team1Ids = match.teams.faction1.roster.map(p => p.player_id)
+    const team2Ids = match.teams.faction2.roster.map(p => p.player_id)
 
     const [team1Analysis, team2Analysis] = await Promise.all([
       analyzeTeam(team1Ids, DEFAULT_MATCH_COUNT),
@@ -43,8 +43,8 @@ export default {
       predictWinner(team1Analysis, team2Analysis, map),
     )
 
-    const team1Name = `${match.teams.faction1.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
-    const team2Name = `${match.teams.faction2.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
+    const team1Name = `${match.teams.faction1.roster.map(p => p.nickname).slice(0, 2).join(', ')}...`
+    const team2Name = `${match.teams.faction2.roster.map(p => p.nickname).slice(0, 2).join(', ')}...`
 
     await interaction.editReply({
       embeds: [predictionEmbed(team1Name, team2Name, predictions)],

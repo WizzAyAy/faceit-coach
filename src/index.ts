@@ -1,4 +1,5 @@
 import type { BotCommand } from './types/index.js'
+import { createServer } from 'node:http'
 import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
 import { config } from './config.js'
 
@@ -64,10 +65,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 })
 
+function startHealthCheck(): void {
+  const port = Number(process.env.PORT) || 8000
+  createServer((_req, res) => {
+    res.writeHead(200)
+    res.end('OK')
+  }).listen(port)
+}
+
 async function main(): Promise<void> {
   await loadCommands()
   await registerSlashCommands()
   await client.login(config.discordToken)
+  startHealthCheck()
 }
 
 main().catch(console.error)

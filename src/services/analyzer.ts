@@ -86,15 +86,17 @@ export async function analyzeTeam(
     const mapStatsMap = new Map<string, { wins: number, total: number, kdSum: number, hsSum: number }>()
 
     for (const game of gameStats) {
-      if (!CS2_MAP_POOL.includes(game.map as any))
+      const gameMap = game.Map || game.map
+      if (!gameMap || !CS2_MAP_POOL.includes(gameMap as any))
         continue
-      const entry = mapStatsMap.get(game.map) ?? { wins: 0, total: 0, kdSum: 0, hsSum: 0 }
+      const entry = mapStatsMap.get(gameMap) ?? { wins: 0, total: 0, kdSum: 0, hsSum: 0 }
       entry.total++
-      if (game.result === '1')
+      const result = game.Result || game.result
+      if (result === '1')
         entry.wins++
-      entry.kdSum += Number(game.kd_ratio) || 0
-      entry.hsSum += Number(game.headshots_percentage) || 0
-      mapStatsMap.set(game.map, entry)
+      entry.kdSum += Number(game['K/D Ratio'] || game.kd_ratio) || 0
+      entry.hsSum += Number(game['Headshots %'] || game.headshots_percentage) || 0
+      mapStatsMap.set(gameMap, entry)
     }
 
     const mapStats: PlayerMapStats[] = Array.from(mapStatsMap.entries()).map(([map, s]) => ({
@@ -126,8 +128,8 @@ export async function analyzeLobby(
   const ourFaction = teamSide === 1 ? 'faction1' : 'faction2'
   const theirFaction = teamSide === 1 ? 'faction2' : 'faction1'
 
-  const ourPlayerIds = match.teams[ourFaction].players.map(p => p.player_id)
-  const theirPlayerIds = match.teams[theirFaction].players.map(p => p.player_id)
+  const ourPlayerIds = match.teams[ourFaction].roster.map(p => p.player_id)
+  const theirPlayerIds = match.teams[theirFaction].roster.map(p => p.player_id)
 
   const [ourAnalysis, theirAnalysis] = await Promise.all([
     analyzeTeam(ourPlayerIds, matchCount),

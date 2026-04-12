@@ -46,8 +46,8 @@ export default {
     }
 
     // Ask which team via buttons
-    const team1Names = match.teams.faction1.players.map(p => p.nickname).join(', ')
-    const team2Names = match.teams.faction2.players.map(p => p.nickname).join(', ')
+    const team1Names = match.teams.faction1.roster.map(p => p.nickname).join(', ')
+    const team2Names = match.teams.faction2.roster.map(p => p.nickname).join(', ')
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()

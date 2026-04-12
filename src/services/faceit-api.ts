@@ -1,5 +1,6 @@
 import type {
-  FaceitGameStats,
+  FaceitGameStatsItem,
+  FaceitGameStatsResponse,
   FaceitMatch,
   FaceitMatchHistory,
   FaceitPlayer,
@@ -92,15 +93,16 @@ export const faceitApi = {
     return history
   },
 
-  async getPlayerGameStats(playerId: string, limit: number): Promise<FaceitGameStats[]> {
+  async getPlayerGameStats(playerId: string, limit: number): Promise<FaceitGameStatsItem[]> {
     const cacheKey = cache.key('player-game-stats', playerId, String(limit))
-    const cached = cache.get<FaceitGameStats[]>(cacheKey)
+    const cached = cache.get<FaceitGameStatsItem[]>(cacheKey)
     if (cached)
       return cached
 
-    const stats = await faceitFetch<FaceitGameStats[]>(
+    const response = await faceitFetch<FaceitGameStatsResponse>(
       `/players/${playerId}/games/cs2/stats?offset=0&limit=${limit}`,
     )
+    const stats = response.items.map(item => item.stats)
     cache.set(cacheKey, stats, CACHE_TTL.MATCH_HISTORY)
     return stats
   },

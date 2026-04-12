@@ -37,7 +37,7 @@ export default {
     const match = await faceitApi.getMatch(lastMatch.match_id)
 
     if (match.status === 'ONGOING' || match.status === 'READY') {
-      const isTeam1 = match.teams.faction1.players.some(p => p.player_id === player.player_id)
+      const isTeam1 = match.teams.faction1.roster.some(p => p.player_id === player.player_id)
       const teamSide: 1 | 2 = isTeam1 ? 1 : 2
 
       await interaction.editReply({ content: `🔴 **${pseudo}** est en match ! Analyse en cours...` })
