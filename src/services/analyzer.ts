@@ -1,4 +1,4 @@
-import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types/index.js'
+import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats, ScoreBreakdown } from '../types/index.js'
 import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
 import { faceitApi } from './faceit-api.js'
 
@@ -33,13 +33,16 @@ export interface MapAnalysis {
   theirTotalMatches: number
 }
 
-export function calculateMapScores(players: PlayerAnalysis[]): Record<string, { score: number, totalMatches: number }> {
-  const scores: Record<string, { score: number, totalMatches: number }> = {}
+export function calculateMapScores(players: PlayerAnalysis[]): Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }> {
+  const scores: Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }> = {}
 
   for (const map of CS2_MAP_POOL) {
     let totalWeightedScore = 0
     let totalWeight = 0
     let totalMatches = 0
+    let weightedWinrate = 0
+    let weightedKd = 0
+    let weightedElo = 0
 
     for (const player of players) {
       const mapStat = player.mapStats.find(s => s.map === map)
@@ -59,12 +62,20 @@ export function calculateMapScores(players: PlayerAnalysis[]): Record<string, { 
         + eloFactor * SCORE_WEIGHTS.ELO
 
       totalWeightedScore += playerScore * player.weight
+      weightedWinrate += adjustedWinrate * player.weight
+      weightedKd += adjustedKd * player.weight
+      weightedElo += eloFactor * player.weight
       totalWeight += player.weight
     }
 
     scores[map] = {
       score: totalWeight > 0 ? totalWeightedScore / totalWeight : 0.5,
       totalMatches,
+      breakdown: {
+        winrate: totalWeight > 0 ? weightedWinrate / totalWeight : 0.5,
+        kd: totalWeight > 0 ? weightedKd / totalWeight : 0.5,
+        elo: totalWeight > 0 ? weightedElo / totalWeight : 1.0,
+      },
     }
   }
 
@@ -81,8 +92,8 @@ function getConfidence(ourMatches: number, theirMatches: number): 'high' | 'medi
 }
 
 export function computePickBan(
-  ourScores: Record<string, { score: number, totalMatches: number }>,
-  theirScores: Record<string, { score: number, totalMatches: number }>,
+  ourScores: Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }>,
+  theirScores: Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }>,
 ): PickBanResult {
   const allMaps: MapScore[] = Object.keys(ourScores)
     .map((map) => {
@@ -96,6 +107,8 @@ export function computePickBan(
         confidence: getConfidence(our.totalMatches, their.totalMatches),
         ourTotalMatches: our.totalMatches,
         theirTotalMatches: their.totalMatches,
+        ourBreakdown: our.breakdown,
+        theirBreakdown: their.breakdown,
       }
     })
     .sort((a, b) => b.advantage - a.advantage)

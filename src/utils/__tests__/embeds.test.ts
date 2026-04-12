@@ -1,17 +1,25 @@
-import type { PickBanResult } from '../../types/index.js'
+import type { MapScore, PickBanResult } from '../../types/index.js'
 import { describe, expect, it } from 'vitest'
 import { errorEmbed, pickBanEmbed, playerEmbed } from '../embeds.js'
+
+function makeMapScore(partial: { map: string, ourScore: number, theirScore: number, advantage: number, confidence: 'high' | 'medium' | 'low', ourTotalMatches: number, theirTotalMatches: number }): MapScore {
+  return {
+    ...partial,
+    ourBreakdown: { winrate: partial.ourScore, kd: 0.5, elo: 1.0 },
+    theirBreakdown: { winrate: partial.theirScore, kd: 0.5, elo: 1.0 },
+  }
+}
 
 describe('embeds', () => {
   describe('pickBanEmbed', () => {
     it('should create embed with all maps sorted by advantage', () => {
       const result: PickBanResult = {
-        picks: [{ map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 }],
+        picks: [makeMapScore({ map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 })],
         neutral: [],
-        bans: [{ map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 }],
+        bans: [makeMapScore({ map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 })],
         allMaps: [
-          { map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 },
-          { map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 },
+          makeMapScore({ map: 'de_mirage', ourScore: 0.65, theirScore: 0.45, advantage: 0.20, confidence: 'high', ourTotalMatches: 40, theirTotalMatches: 35 }),
+          makeMapScore({ map: 'de_nuke', ourScore: 0.40, theirScore: 0.60, advantage: -0.20, confidence: 'medium', ourTotalMatches: 15, theirTotalMatches: 20 }),
         ],
       }
 
@@ -27,9 +35,9 @@ describe('embeds', () => {
     it('should show confidence icons and match counts', () => {
       const result: PickBanResult = {
         picks: [],
-        neutral: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 }],
+        neutral: [makeMapScore({ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 })],
         bans: [],
-        allMaps: [{ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 }],
+        allMaps: [makeMapScore({ map: 'de_anubis', ourScore: 0.51, theirScore: 0.49, advantage: 0.02, confidence: 'low', ourTotalMatches: 5, theirTotalMatches: 3 })],
       }
 
       const embed = pickBanEmbed(result)

@@ -117,21 +117,43 @@ describe('analyzer', () => {
       const scores = calculateMapScores(players)
       expect(scores.de_mirage.totalMatches).toBe(15)
     })
+
+    it('should return breakdown components per map', () => {
+      const players: PlayerAnalysis[] = [
+        {
+          playerId: 'p1',
+          nickname: 'Player1',
+          elo: 2000,
+          weight: 1.0,
+          mapStats: [
+            { map: 'de_mirage', matches: 20, wins: 14, winrate: 0.7, kdRatio: 1.2, hsPercent: 50 },
+          ],
+        },
+      ]
+
+      const scores = calculateMapScores(players)
+      expect(scores.de_mirage.breakdown).toBeDefined()
+      expect(scores.de_mirage.breakdown.winrate).toBeCloseTo(0.7, 1)
+      expect(scores.de_mirage.breakdown.kd).toBeGreaterThan(0.5)
+      expect(scores.de_mirage.breakdown.elo).toBeCloseTo(1.0, 1)
+    })
   })
 
   describe('computePickBan', () => {
+    const defaultBreakdown = { winrate: 0.5, kd: 0.5, elo: 1.0 }
+
     it('should classify maps with ±8% threshold', () => {
       const ourScores = {
-        de_mirage: { score: 0.65, totalMatches: 30 },
-        de_inferno: { score: 0.55, totalMatches: 20 },
-        de_anubis: { score: 0.50, totalMatches: 15 },
-        de_nuke: { score: 0.40, totalMatches: 25 },
+        de_mirage: { score: 0.65, totalMatches: 30, breakdown: defaultBreakdown },
+        de_inferno: { score: 0.55, totalMatches: 20, breakdown: defaultBreakdown },
+        de_anubis: { score: 0.50, totalMatches: 15, breakdown: defaultBreakdown },
+        de_nuke: { score: 0.40, totalMatches: 25, breakdown: defaultBreakdown },
       }
       const theirScores = {
-        de_mirage: { score: 0.45, totalMatches: 30 },
-        de_inferno: { score: 0.52, totalMatches: 20 },
-        de_anubis: { score: 0.51, totalMatches: 15 },
-        de_nuke: { score: 0.65, totalMatches: 25 },
+        de_mirage: { score: 0.45, totalMatches: 30, breakdown: defaultBreakdown },
+        de_inferno: { score: 0.52, totalMatches: 20, breakdown: defaultBreakdown },
+        de_anubis: { score: 0.51, totalMatches: 15, breakdown: defaultBreakdown },
+        de_nuke: { score: 0.65, totalMatches: 25, breakdown: defaultBreakdown },
       }
 
       const result = computePickBan(ourScores, theirScores)
@@ -151,10 +173,10 @@ describe('analyzer', () => {
 
     it('should include confidence level based on match count', () => {
       const ourScores = {
-        de_mirage: { score: 0.60, totalMatches: 40 },
+        de_mirage: { score: 0.60, totalMatches: 40, breakdown: defaultBreakdown },
       }
       const theirScores = {
-        de_mirage: { score: 0.50, totalMatches: 35 },
+        de_mirage: { score: 0.50, totalMatches: 35, breakdown: defaultBreakdown },
       }
 
       const result = computePickBan(ourScores, theirScores)
@@ -165,14 +187,27 @@ describe('analyzer', () => {
 
     it('should mark low confidence for few matches', () => {
       const ourScores = {
-        de_nuke: { score: 0.60, totalMatches: 5 },
+        de_nuke: { score: 0.60, totalMatches: 5, breakdown: defaultBreakdown },
       }
       const theirScores = {
-        de_nuke: { score: 0.50, totalMatches: 3 },
+        de_nuke: { score: 0.50, totalMatches: 3, breakdown: defaultBreakdown },
       }
 
       const result = computePickBan(ourScores, theirScores)
       expect(result.allMaps[0].confidence).toBe('low')
+    })
+
+    it('should include breakdown in MapScore results', () => {
+      const ourScores = {
+        de_mirage: { score: 0.65, totalMatches: 30, breakdown: { winrate: 0.7, kd: 0.55, elo: 1.05 } },
+      }
+      const theirScores = {
+        de_mirage: { score: 0.50, totalMatches: 25, breakdown: { winrate: 0.5, kd: 0.5, elo: 1.0 } },
+      }
+
+      const result = computePickBan(ourScores, theirScores)
+      expect(result.allMaps[0].ourBreakdown).toEqual({ winrate: 0.7, kd: 0.55, elo: 1.05 })
+      expect(result.allMaps[0].theirBreakdown).toEqual({ winrate: 0.5, kd: 0.5, elo: 1.0 })
     })
   })
 })

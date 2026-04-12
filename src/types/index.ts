@@ -183,6 +183,12 @@ export interface PlayerAnalysis {
   mapStats: PlayerMapStats[]
 }
 
+export interface ScoreBreakdown {
+  winrate: number
+  kd: number
+  elo: number
+}
+
 export interface MapScore {
   map: string
   ourScore: number
@@ -191,6 +197,8 @@ export interface MapScore {
   confidence: 'high' | 'medium' | 'low'
   ourTotalMatches: number
   theirTotalMatches: number
+  ourBreakdown: ScoreBreakdown
+  theirBreakdown: ScoreBreakdown
 }
 
 export interface PickBanResult {
