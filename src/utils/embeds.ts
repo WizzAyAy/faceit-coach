@@ -1,6 +1,6 @@
-import type { MapScore, PickBanResult, PredictionResult, StratsResult } from '../types/index.js'
+import type { MapScore, PickBanResult, StratsResult } from '../types/index.js'
 import { EmbedBuilder } from 'discord.js'
-import { BAN_THRESHOLD, MAP_DISPLAY_NAMES, PICK_THRESHOLD } from './constants.js'
+import { BAN_THRESHOLD, MAP_CT_BIAS, MAP_DISPLAY_NAMES, PICK_THRESHOLD } from './constants.js'
 
 function mapName(map: string): string {
   return MAP_DISPLAY_NAMES[map] ?? map
@@ -26,16 +26,25 @@ function confidenceIcon(confidence: MapScore['confidence']): string {
   return '⚠️'
 }
 
+function sideLabel(map: string): string {
+  const ctBias = MAP_CT_BIAS[map] ?? 0.5
+  if (ctBias > 0.5)
+    return '🛡️ CT'
+  if (ctBias < 0.5)
+    return '💣 T'
+  return '⚖️ Neutre'
+}
+
 export function pickBanEmbed(result: PickBanResult): EmbedBuilder {
   const lines = result.allMaps.map((m) => {
     const sign = m.advantage >= 0 ? '+' : ''
-    return `${strengthLabel(m.advantage)}  **${mapName(m.map)}** ${sign}${pct(m.advantage)} ${confidenceIcon(m.confidence)}\n> Vous: ${pct(m.ourScore)} | Eux: ${pct(m.theirScore)} | Data: ${m.ourTotalMatches}+${m.theirTotalMatches} matchs`
+    return `${strengthLabel(m.advantage)}  **${mapName(m.map)}** ${sign}${pct(m.advantage)} ${confidenceIcon(m.confidence)}\n> Vous: ${pct(m.ourScore)} | Eux: ${pct(m.theirScore)} | Côté: ${sideLabel(m.map)} | Data: ${m.ourTotalMatches}+${m.theirTotalMatches} matchs`
   })
 
   return new EmbedBuilder()
     .setTitle('📊 Analyse Pick & Ban')
     .setDescription(lines.join('\n\n'))
-    .setFooter({ text: '📊 Fiable | 📉 Moyen | ⚠️ Peu de données' })
+    .setFooter({ text: '📊 Fiable | 📉 Moyen | ⚠️ Peu de données · 🛡️ CT | 💣 T' })
     .setColor(0x00AE86)
     .setTimestamp()
 }
@@ -74,54 +83,6 @@ export function playerEmbed(
     .setTimestamp()
 }
 
-export function compareEmbed(
-  nick1: string,
-  nick2: string,
-  stats1: Record<string, string>,
-  stats2: Record<string, string>,
-  mapComparison: { map: string, wr1: string, wr2: string, winner: string }[],
-): EmbedBuilder {
-  const header = `**${nick1}** vs **${nick2}**`
-  const statLines = Object.keys(stats1).map(k =>
-    `**${k}:** ${stats1[k]} vs ${stats2[k]}`,
-  )
-  const mapLines = mapComparison.map(m =>
-    `**${mapName(m.map)}:** ${m.wr1} vs ${m.wr2} ${m.winner === nick1 ? '⬅️' : m.winner === nick2 ? '➡️' : '🤝'}`,
-  )
-
-  return new EmbedBuilder()
-    .setTitle(`⚔️ ${header}`)
-    .addFields(
-      { name: 'Stats globales', value: statLines.join('\n') },
-      { name: 'Par map', value: mapLines.join('\n') || 'N/A' },
-    )
-    .setColor(0xFEE75C)
-    .setTimestamp()
-}
-
-export function predictionEmbed(
-  team1Name: string,
-  team2Name: string,
-  predictions: PredictionResult[],
-): EmbedBuilder {
-  const lines = predictions.map(p =>
-    `**${mapName(p.map)}:** ${team1Name} ${pct(p.team1WinProbability)} — ${pct(p.team2WinProbability)} ${team2Name}`,
-  )
-
-  const topPlayers = predictions[0]?.keyPlayers?.slice(0, 3)
-    .map(kp => `${kp.nickname}`)
-    .join(', ')
-
-  return new EmbedBuilder()
-    .setTitle('🔮 Prédiction')
-    .setDescription(lines.join('\n'))
-    .addFields(
-      { name: 'Joueurs clés', value: topPlayers || 'N/A' },
-    )
-    .setColor(0xEB459E)
-    .setTimestamp()
-}
-
 export function stratsEmbed(result: StratsResult): EmbedBuilder {
   const lines = result.playerBreakdown.map(p =>
     `**${p.nickname}:** CT ${Math.round(p.ctWinrate * 100)}% | T ${Math.round(p.tWinrate * 100)}%`,
@@ -134,32 +95,6 @@ export function stratsEmbed(result: StratsResult): EmbedBuilder {
       { name: 'Détail par joueur', value: lines.join('\n') || 'N/A' },
     )
     .setColor(0x57F287)
-    .setTimestamp()
-}
-
-export function teamEmbed(
-  players: { nickname: string, elo: number }[],
-  strongMaps: { map: string, score: string }[],
-  weakMaps: { map: string, score: string }[],
-): EmbedBuilder {
-  const playerList = players.map(p => `${p.nickname} (${p.elo})`).join(', ')
-
-  return new EmbedBuilder()
-    .setTitle('👥 Analyse d\'équipe')
-    .setDescription(playerList)
-    .addFields(
-      {
-        name: '🟢 Maps fortes',
-        value: strongMaps.map(m => `${mapName(m.map)}: ${m.score}`).join('\n') || 'N/A',
-        inline: true,
-      },
-      {
-        name: '🔴 Maps faibles',
-        value: weakMaps.map(m => `${mapName(m.map)}: ${m.score}`).join('\n') || 'N/A',
-        inline: true,
-      },
-    )
-    .setColor(0x5865F2)
     .setTimestamp()
 }
 

@@ -1,6 +1,6 @@
 import type { PickBanResult } from '../../types/index.js'
 import { describe, expect, it } from 'vitest'
-import { errorEmbed, pickBanEmbed, playerEmbed, teamEmbed } from '../embeds.js'
+import { errorEmbed, pickBanEmbed, playerEmbed } from '../embeds.js'
 
 describe('embeds', () => {
   describe('pickBanEmbed', () => {
@@ -68,21 +68,6 @@ describe('embeds', () => {
       const json = embed.toJSON()
       const topField = json.fields!.find(f => f.name === '🟢 Meilleures maps')
       expect(topField?.value).toBe('N/A')
-    })
-  })
-
-  describe('teamEmbed', () => {
-    it('should list players and maps', () => {
-      const embed = teamEmbed(
-        [{ nickname: 'P1', elo: 2000 }, { nickname: 'P2', elo: 1800 }],
-        [{ map: 'de_mirage', score: '62%' }],
-        [{ map: 'de_nuke', score: '38%' }],
-      )
-
-      const json = embed.toJSON()
-      expect(json.title).toBe('👥 Analyse d\'équipe')
-      expect(json.description).toContain('P1 (2000)')
-      expect(json.description).toContain('P2 (1800)')
     })
   })
 

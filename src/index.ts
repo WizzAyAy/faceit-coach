@@ -9,11 +9,7 @@ async function loadCommands(): Promise<void> {
   const commandFiles = [
     'analyze',
     'player',
-    'compare',
-    'history',
-    'team',
     'live',
-    'predict',
     'strats',
   ]
 
