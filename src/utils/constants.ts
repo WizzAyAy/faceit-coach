@@ -20,6 +20,21 @@ export const MAP_DISPLAY_NAMES: Record<string, string> = {
   de_overpass: 'Overpass',
 }
 
+// Reverse lookup: display name → technical name
+export const MAP_NAME_TO_ID: Record<string, string> = Object.fromEntries(
+  Object.entries(MAP_DISPLAY_NAMES).map(([id, name]) => [name, id]),
+)
+
+/** Check if a label (either 'de_mirage' or 'Mirage') is in the map pool */
+export function isInMapPool(label: string): boolean {
+  return CS2_MAP_POOL.includes(label as any) || label in MAP_NAME_TO_ID
+}
+
+/** Normalize a map label to technical name (de_mirage) */
+export function normalizeMapName(label: string): string {
+  return MAP_NAME_TO_ID[label] ?? label
+}
+
 // Known CT/T side advantage for each map (based on CS2 meta)
 // Values > 0.5 = CT-sided, < 0.5 = T-sided
 export const MAP_CT_BIAS: Record<string, number> = {

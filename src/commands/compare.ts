@@ -2,7 +2,7 @@ import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types/index.js'
 import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api.js'
-import { CS2_MAP_POOL } from '../utils/constants.js'
+import { CS2_MAP_POOL, MAP_DISPLAY_NAMES } from '../utils/constants.js'
 import { compareEmbed, errorEmbed } from '../utils/embeds.js'
 
 export default {
@@ -50,8 +50,9 @@ export default {
     }
 
     const mapComparison = CS2_MAP_POOL.map((map) => {
-      const seg1 = stats1.segments.find(s => s.label === map && s.type === 'Map')
-      const seg2 = stats2.segments.find(s => s.label === map && s.type === 'Map')
+      const displayName = MAP_DISPLAY_NAMES[map] ?? map
+      const seg1 = stats1.segments.find(s => s.type === 'Map' && (s.label === map || s.label === displayName))
+      const seg2 = stats2.segments.find(s => s.type === 'Map' && (s.label === map || s.label === displayName))
       const wr1 = seg1 ? Number(seg1.stats['Win Rate %']) : 0
       const wr2 = seg2 ? Number(seg2.stats['Win Rate %']) : 0
       return {

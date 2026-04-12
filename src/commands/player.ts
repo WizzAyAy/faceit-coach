@@ -2,7 +2,7 @@ import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types/index.js'
 import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api.js'
-import { CS2_MAP_POOL } from '../utils/constants.js'
+import { isInMapPool, normalizeMapName } from '../utils/constants.js'
 import { errorEmbed, playerEmbed } from '../utils/embeds.js'
 
 export default {
@@ -33,9 +33,9 @@ export default {
 
     const stats = await faceitApi.getPlayerStats(player.player_id)
     const mapSegments = stats.segments
-      .filter(s => s.type === 'Map' && CS2_MAP_POOL.includes(s.label as any))
+      .filter(s => s.type === 'Map' && isInMapPool(s.label))
       .map(s => ({
-        map: s.label,
+        map: normalizeMapName(s.label),
         winrate: Number(s.stats['Win Rate %']),
       }))
       .sort((a, b) => b.winrate - a.winrate)

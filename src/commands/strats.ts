@@ -2,7 +2,7 @@ import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand, StratsResult } from '../types/index.js'
 import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api.js'
-import { CS2_MAP_POOL, MAP_CT_BIAS } from '../utils/constants.js'
+import { CS2_MAP_POOL, MAP_CT_BIAS, MAP_DISPLAY_NAMES } from '../utils/constants.js'
 import { errorEmbed, stratsEmbed } from '../utils/embeds.js'
 
 export default {
@@ -49,7 +49,8 @@ export default {
     const ctBias = MAP_CT_BIAS[map] ?? 0.5
 
     const playerBreakdown = players.map((player, i) => {
-      const mapSegment = allStats[i].segments.find(s => s.label === map && s.type === 'Map')
+      const displayName = MAP_DISPLAY_NAMES[map] ?? map
+      const mapSegment = allStats[i].segments.find(s => s.type === 'Map' && (s.label === map || s.label === displayName))
       const mapWinrate = mapSegment ? Number(mapSegment.stats['Win Rate %']) / 100 : 0.5
 
       // Estimate side-specific winrates using map CT bias
