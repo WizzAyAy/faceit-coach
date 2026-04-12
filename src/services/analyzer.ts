@@ -1,4 +1,4 @@
-import type { FaceitPlayerStats, MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types/index.js'
+import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats } from '../types/index.js'
 import { CS2_MAP_POOL, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
 import { faceitApi } from './faceit-api.js'
 
@@ -11,19 +11,6 @@ export function adjustWinrateForUncertainty(winrate: number, matchCount: number)
     return winrate
   const confidence = matchCount / UNCERTAINTY_THRESHOLD
   return winrate * confidence + 0.5 * (1 - confidence)
-}
-
-function extractMapStats(stats: FaceitPlayerStats): PlayerMapStats[] {
-  return stats.segments
-    .filter(s => s.type === 'Map' && CS2_MAP_POOL.includes(s.label as any))
-    .map(s => ({
-      map: s.label,
-      matches: Number(s.stats.Matches),
-      wins: Number(s.stats.Wins),
-      winrate: Number(s.stats['Win Rate %']) / 100,
-      kdRatio: Number(s.stats['Average K/D Ratio'] || s.stats['K/D Ratio']),
-      hsPercent: Number(s.stats['Average Headshots %'] || s.stats['Headshots %']),
-    }))
 }
 
 export function calculateMapScores(players: PlayerAnalysis[]): Record<string, number> {
@@ -75,26 +62,56 @@ export function computePickBan(
 
 export async function analyzeTeam(
   playerIds: string[],
-  _matchCount: number,
+  matchCount: number,
 ): Promise<PlayerAnalysis[]> {
   const players = await Promise.all(
     playerIds.map(id => faceitApi.getPlayer(id)),
   )
 
   const elos = players.map(p => p.games.cs2?.faceit_elo ?? 1000)
+  if (elos.length === 0)
+    return []
+
   const averageElo = elos.reduce((sum, e) => sum + e, 0) / elos.length
 
-  const statsPromises = playerIds.map(id => faceitApi.getPlayerStats(id))
-  const allStats = await Promise.all(statsPromises)
+  const allGameStats = await Promise.all(
+    playerIds.map(id => faceitApi.getPlayerGameStats(id, matchCount)),
+  )
 
   return players.map((player, i) => {
     const elo = player.games.cs2?.faceit_elo ?? 1000
+    const gameStats = allGameStats[i]
+
+    // Compute per-map stats from recent N matches
+    const mapStatsMap = new Map<string, { wins: number, total: number, kdSum: number, hsSum: number }>()
+
+    for (const game of gameStats) {
+      if (!CS2_MAP_POOL.includes(game.map as any))
+        continue
+      const entry = mapStatsMap.get(game.map) ?? { wins: 0, total: 0, kdSum: 0, hsSum: 0 }
+      entry.total++
+      if (game.result === '1')
+        entry.wins++
+      entry.kdSum += Number(game.kd_ratio) || 0
+      entry.hsSum += Number(game.headshots_percentage) || 0
+      mapStatsMap.set(game.map, entry)
+    }
+
+    const mapStats: PlayerMapStats[] = Array.from(mapStatsMap.entries()).map(([map, s]) => ({
+      map,
+      matches: s.total,
+      wins: s.wins,
+      winrate: s.total > 0 ? s.wins / s.total : 0,
+      kdRatio: s.total > 0 ? s.kdSum / s.total : 0,
+      hsPercent: s.total > 0 ? s.hsSum / s.total : 0,
+    }))
+
     return {
       playerId: player.player_id,
       nickname: player.nickname,
       elo,
       weight: calculatePlayerWeight(elo, averageElo),
-      mapStats: extractMapStats(allStats[i]),
+      mapStats,
     }
   })
 }

@@ -37,10 +37,17 @@ export class FaceitApiError extends Error {
 
 export const faceitApi = {
   async getPlayerByNickname(nickname: string): Promise<FaceitPlayer> {
+    const cacheKey = cache.key('player-nick', nickname.toLowerCase())
+    const cached = cache.get<FaceitPlayer>(cacheKey)
+    if (cached)
+      return cached
+
     try {
-      return await faceitFetch<FaceitPlayer>(
+      const player = await faceitFetch<FaceitPlayer>(
         `/players?nickname=${encodeURIComponent(nickname)}&game=cs2`,
       )
+      cache.set(cacheKey, player, CACHE_TTL.PLAYER_STATS)
+      return player
     }
     catch (err) {
       if (err instanceof FaceitApiError && err.status === 404) {

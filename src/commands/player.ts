@@ -44,7 +44,7 @@ export default {
       map: m.map,
       winrate: `${m.winrate}%`,
     }))
-    const bottomMaps = mapSegments.slice(-3).reverse().map(m => ({
+    const bottomMaps = mapSegments.slice(Math.max(3, mapSegments.length - 3)).reverse().map(m => ({
       map: m.map,
       winrate: `${m.winrate}%`,
     }))

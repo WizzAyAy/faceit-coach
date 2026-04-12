@@ -2,7 +2,7 @@ import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand, StratsResult } from '../types/index.js'
 import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api.js'
-import { CS2_MAP_POOL } from '../utils/constants.js'
+import { CS2_MAP_POOL, MAP_CT_BIAS } from '../utils/constants.js'
 import { errorEmbed, stratsEmbed } from '../utils/embeds.js'
 
 export default {
@@ -42,50 +42,33 @@ export default {
       return
     }
 
-    const allGameStats = await Promise.all(
-      players.map(p => faceitApi.getPlayerGameStats(p.player_id, 100)),
+    const allStats = await Promise.all(
+      players.map(p => faceitApi.getPlayerStats(p.player_id)),
     )
 
+    const ctBias = MAP_CT_BIAS[map] ?? 0.5
+
     const playerBreakdown = players.map((player, i) => {
-      const mapMatches = allGameStats[i].filter(g => g.map === map)
-      let ctWins = 0
-      let ctTotal = 0
-      let tWins = 0
-      let tTotal = 0
-
-      for (const match of mapMatches) {
-        const won = match.result === '1'
-        const kd = Number(match.kd_ratio) || 1
-        if (kd >= 1.1) {
-          tTotal++
-          if (won)
-            tWins++
-        }
-        else {
-          ctTotal++
-          if (won)
-            ctWins++
-        }
-      }
-
-      const ctWinrate = ctTotal > 0 ? ctWins / ctTotal : 0.5
-      const tWinrate = tTotal > 0 ? tWins / tTotal : 0.5
+      const mapSegment = allStats[i].segments.find(s => s.label === map && s.type === 'Map')
+      const mapWinrate = mapSegment ? Number(mapSegment.stats['Win Rate %']) / 100 : 0.5
 
       return {
         nickname: player.nickname,
-        ctWinrate,
-        tWinrate,
+        ctWinrate: mapWinrate,
+        tWinrate: mapWinrate,
       }
     })
 
-    const avgCt = playerBreakdown.reduce((s, p) => s + p.ctWinrate, 0) / playerBreakdown.length
-    const avgT = playerBreakdown.reduce((s, p) => s + p.tWinrate, 0) / playerBreakdown.length
+    // Recommend side based on map meta:
+    // If map is CT-sided (ctBias > 0.5), recommend starting CT to build economy advantage
+    // If map is T-sided or neutral, recommend starting T
+    const recommendedSide = ctBias > 0.5 ? 'CT' as const : 'T' as const
 
     const result: StratsResult = {
       map,
-      recommendedSide: avgCt >= avgT ? 'CT' : 'T',
-      ctWinrate: avgCt,
-      tWinrate: avgT,
+      recommendedSide,
+      ctWinrate: ctBias,
+      tWinrate: 1 - ctBias,
       playerBreakdown,
     }
 

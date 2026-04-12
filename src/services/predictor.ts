@@ -45,7 +45,7 @@ function computeTeamStrength(team: PlayerAnalysis[], map: string): TeamStrength 
 
     // Combine ELO factor and map winrate
     const eloFactor = player.elo / 2000 // Normalize around 2000
-    const strength = (winrate * 0.6 + eloFactor * 0.4) * player.elo
+    const strength = winrate * 0.6 + eloFactor * 0.4
     contributions.push({ nickname: player.nickname, contribution: strength })
   }
 

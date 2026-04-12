@@ -89,7 +89,7 @@ export const CS2_MAP_POOL = [
   'de_ancient',
   'de_dust2',
   'de_train',
-] as const;
+] as const
 ```
 
 ## Algorithme d'analyse Pick & Ban

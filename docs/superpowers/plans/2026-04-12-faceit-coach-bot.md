@@ -534,8 +534,8 @@ Create `src/services/__tests__/faceit-api.test.ts`:
 
 ```ts
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { faceitApi } from '../faceit-api'
 import { cache } from '../cache'
+import { faceitApi } from '../faceit-api'
 
 // Mock undici fetch
 const mockFetch = vi.fn()
@@ -589,7 +589,8 @@ describe('faceitApi', () => {
       })
 
       await expect(faceitApi.getPlayerByNickname('Unknown'))
-        .rejects.toThrow('Player "Unknown" not found on FACEIT')
+        .rejects
+        .toThrow('Player "Unknown" not found on FACEIT')
     })
   })
 
@@ -598,7 +599,7 @@ describe('faceitApi', () => {
       const mockStats = {
         player_id: 'p1',
         game_id: 'cs2',
-        lifetime: { Matches: '100', 'Win Rate %': '55' },
+        lifetime: { 'Matches': '100', 'Win Rate %': '55' },
         segments: [],
       }
       mockFetch.mockResolvedValueOnce({
@@ -805,8 +806,8 @@ git commit -m "feat: add FACEIT API client with caching and retry"
 Create `src/services/__tests__/analyzer.test.ts`:
 
 ```ts
-import { describe, expect, it } from 'vitest'
 import type { PlayerAnalysis, PlayerMapStats } from '../../types'
+import { describe, expect, it } from 'vitest'
 import {
   adjustWinrateForUncertainty,
   calculateMapScores,
@@ -1085,8 +1086,8 @@ git commit -m "feat: add analyzer service with pick/ban algorithm"
 Create `src/services/__tests__/predictor.test.ts`:
 
 ```ts
-import { describe, expect, it } from 'vitest'
 import type { PlayerAnalysis } from '../../types'
+import { describe, expect, it } from 'vitest'
 import { predictWinner } from '../predictor'
 
 describe('predictor', () => {
@@ -1216,8 +1217,8 @@ git commit -m "feat: add predictor service with tests"
 - [ ] **Step 1: Create src/utils/embeds.ts**
 
 ```ts
-import { EmbedBuilder } from 'discord.js'
 import type { MapScore, PickBanResult, PredictionResult, StratsResult } from '../types'
+import { EmbedBuilder } from 'discord.js'
 import { MAP_DISPLAY_NAMES } from './constants'
 
 function mapName(map: string): string {
@@ -1397,8 +1398,8 @@ git commit -m "feat: add Discord embed helpers"
 - [ ] **Step 1: Create src/index.ts**
 
 ```ts
-import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
 import type { BotCommand } from './types'
+import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
 import { config } from './config'
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
@@ -1487,13 +1488,13 @@ git commit -m "feat: add bot bootstrap and command loader"
 - [ ] **Step 1: Create src/commands/analyze.ts**
 
 ```ts
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
 import { analyzeLobby } from '../services/analyzer'
 import { faceitApi } from '../services/faceit-api'
-import { errorEmbed, pickBanEmbed } from '../utils/embeds'
 import { DEFAULT_MATCH_COUNT } from '../utils/constants'
+import { errorEmbed, pickBanEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -1590,12 +1591,12 @@ git commit -m "feat: add /analyze command"
 - [ ] **Step 1: Create src/commands/player.ts**
 
 ```ts
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
+import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api'
-import { errorEmbed, playerEmbed } from '../utils/embeds'
 import { CS2_MAP_POOL, MAP_DISPLAY_NAMES } from '../utils/constants'
+import { errorEmbed, playerEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -1674,12 +1675,12 @@ git commit -m "feat: add /player command"
 - [ ] **Step 1: Create src/commands/compare.ts**
 
 ```ts
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
+import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api'
-import { compareEmbed, errorEmbed } from '../utils/embeds'
 import { CS2_MAP_POOL } from '../utils/constants'
+import { compareEmbed, errorEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -1715,13 +1716,13 @@ export default {
     ])
 
     const globalStats1: Record<string, string> = {
-      ELO: String(player1.games.cs2?.faceit_elo ?? 'N/A'),
-      Winrate: `${stats1.lifetime['Win Rate %']}%`,
+      'ELO': String(player1.games.cs2?.faceit_elo ?? 'N/A'),
+      'Winrate': `${stats1.lifetime['Win Rate %']}%`,
       'K/D': stats1.lifetime['Average K/D Ratio'] || stats1.lifetime['K/D Ratio'],
     }
     const globalStats2: Record<string, string> = {
-      ELO: String(player2.games.cs2?.faceit_elo ?? 'N/A'),
-      Winrate: `${stats2.lifetime['Win Rate %']}%`,
+      'ELO': String(player2.games.cs2?.faceit_elo ?? 'N/A'),
+      'Winrate': `${stats2.lifetime['Win Rate %']}%`,
       'K/D': stats2.lifetime['Average K/D Ratio'] || stats2.lifetime['K/D Ratio'],
     }
 
@@ -1762,12 +1763,12 @@ git commit -m "feat: add /compare command"
 - [ ] **Step 1: Create src/commands/history.ts**
 
 ```ts
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api'
-import { errorEmbed } from '../utils/embeds'
 import { MAP_DISPLAY_NAMES } from '../utils/constants'
+import { errorEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -1840,13 +1841,13 @@ git commit -m "feat: add /history command"
 - [ ] **Step 1: Create src/commands/team.ts**
 
 ```ts
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
+import { SlashCommandBuilder } from 'discord.js'
 import { analyzeTeam, calculateMapScores } from '../services/analyzer'
-import { errorEmbed, teamEmbed } from '../utils/embeds'
+import { faceitApi } from '../services/faceit-api'
 import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT, MAP_DISPLAY_NAMES } from '../utils/constants'
+import { errorEmbed, teamEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -1922,13 +1923,13 @@ git commit -m "feat: add /team command"
 Note: FACEIT API ne fournit pas directement un endpoint "is player in live match". On utilise l'historique récent et on vérifie si le dernier match est ONGOING.
 
 ```ts
-import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
+import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { analyzeLobby } from '../services/analyzer'
-import { errorEmbed, pickBanEmbed } from '../utils/embeds'
+import { faceitApi } from '../services/faceit-api'
 import { DEFAULT_MATCH_COUNT } from '../utils/constants'
+import { errorEmbed, pickBanEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -2019,14 +2020,14 @@ git commit -m "feat: add /live command"
 - [ ] **Step 1: Create src/commands/predict.ts**
 
 ```ts
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types'
-import { faceitApi } from '../services/faceit-api'
+import { SlashCommandBuilder } from 'discord.js'
 import { analyzeTeam } from '../services/analyzer'
+import { faceitApi } from '../services/faceit-api'
 import { predictWinner } from '../services/predictor'
-import { errorEmbed, predictionEmbed } from '../utils/embeds'
 import { CS2_MAP_POOL, DEFAULT_MATCH_COUNT } from '../utils/constants'
+import { errorEmbed, predictionEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
@@ -2064,8 +2065,8 @@ export default {
       predictWinner(team1Analysis, team2Analysis, map),
     )
 
-    const team1Name = match.teams.faction1.players.map(p => p.nickname).slice(0, 2).join(', ') + '...'
-    const team2Name = match.teams.faction2.players.map(p => p.nickname).slice(0, 2).join(', ') + '...'
+    const team1Name = `${match.teams.faction1.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
+    const team2Name = `${match.teams.faction2.players.map(p => p.nickname).slice(0, 2).join(', ')}...`
 
     await interaction.editReply({
       embeds: [predictionEmbed(team1Name, team2Name, predictions)],
@@ -2093,23 +2094,21 @@ git commit -m "feat: add /predict command"
 Note: L'API FACEIT stats ne fournit pas directement les winrates CT/T par map par joueur. On approxime via les stats per-round si disponibles, sinon on utilise les stats générales de la map (les segments "Map" ne splitent pas CT/T). Si l'API ne fournit pas CT/T, on base la recommandation sur le winrate global et le K/D (T side nécessite plus d'agressivité = meilleur K/D favorise le T side).
 
 ```ts
-import { SlashCommandBuilder } from 'discord.js'
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types'
-import type { StratsResult } from '../types'
+import type { BotCommand, StratsResult } from '../types'
+import { SlashCommandBuilder } from 'discord.js'
 import { faceitApi } from '../services/faceit-api'
-import { errorEmbed, stratsEmbed } from '../utils/embeds'
 import { CS2_MAP_POOL } from '../utils/constants'
+import { errorEmbed, stratsEmbed } from '../utils/embeds'
 
 export default {
   data: new SlashCommandBuilder()
     .setName('strats')
     .setDescription('Recommande le côté à choisir (CT/T) sur une map')
     .addStringOption(opt =>
-      opt.setName('map').setDescription('Map CS2').setRequired(true)
-        .addChoices(
-          ...CS2_MAP_POOL.map(m => ({ name: m.replace('de_', ''), value: m })),
-        ),
+      opt.setName('map').setDescription('Map CS2').setRequired(true).addChoices(
+        ...CS2_MAP_POOL.map(m => ({ name: m.replace('de_', ''), value: m })),
+      ),
     )
     .addStringOption(opt => opt.setName('j1').setDescription('Joueur 1'))
     .addStringOption(opt => opt.setName('j2').setDescription('Joueur 2'))
@@ -2160,11 +2159,13 @@ export default {
         if (kd >= 1.1) {
           // Aggressive = likely T-side strength
           tTotal++
-          if (won) tWins++
+          if (won)
+            tWins++
         }
         else {
           ctTotal++
-          if (won) ctWins++
+          if (won)
+            ctWins++
         }
       }
 

@@ -20,6 +20,18 @@ export const MAP_DISPLAY_NAMES: Record<string, string> = {
   de_train: 'Train',
 }
 
+// Known CT/T side advantage for each map (based on CS2 meta)
+// Values > 0.5 = CT-sided, < 0.5 = T-sided
+export const MAP_CT_BIAS: Record<string, number> = {
+  de_nuke: 0.57,
+  de_anubis: 0.52,
+  de_ancient: 0.52,
+  de_mirage: 0.50,
+  de_inferno: 0.50,
+  de_dust2: 0.49,
+  de_train: 0.53,
+}
+
 export const FACEIT_API_BASE = 'https://open.faceit.com/data/v4'
 
 export const CACHE_TTL = {
