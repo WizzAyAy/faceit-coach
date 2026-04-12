@@ -5,7 +5,7 @@ export const CS2_MAP_POOL = [
   'de_anubis',
   'de_ancient',
   'de_dust2',
-  'de_train',
+  'de_overpass',
 ] as const
 
 export type CS2Map = typeof CS2_MAP_POOL[number]
@@ -17,7 +17,7 @@ export const MAP_DISPLAY_NAMES: Record<string, string> = {
   de_anubis: 'Anubis',
   de_ancient: 'Ancient',
   de_dust2: 'Dust2',
-  de_train: 'Train',
+  de_overpass: 'Overpass',
 }
 
 // Known CT/T side advantage for each map (based on CS2 meta)
@@ -29,7 +29,7 @@ export const MAP_CT_BIAS: Record<string, number> = {
   de_mirage: 0.50,
   de_inferno: 0.50,
   de_dust2: 0.49,
-  de_train: 0.53,
+  de_overpass: 0.53,
 }
 
 export const FACEIT_API_BASE = 'https://open.faceit.com/data/v4'
