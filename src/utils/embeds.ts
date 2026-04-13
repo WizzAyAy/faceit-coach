@@ -1,4 +1,4 @@
-import type { MapScore, PickBanResult } from '../types/index.js'
+import type { MapScore, MapStrats, PickBanResult } from '../types/index.js'
 import { EmbedBuilder } from 'discord.js'
 import { BAN_THRESHOLD, MAP_CT_BIAS, MAP_DISPLAY_NAMES, PICK_THRESHOLD } from './constants.js'
 
@@ -81,6 +81,32 @@ export function playerEmbed(
     )
     .setColor(0x5865F2)
     .setTimestamp()
+}
+
+export function stratsEmbeds(map: string, strats: MapStrats): EmbedBuilder[] {
+  const name = MAP_DISPLAY_NAMES[map] ?? map
+
+  const pistolEmbed = new EmbedBuilder()
+    .setTitle(`🔫 Pistol Rounds — ${name}`)
+    .addFields(
+      { name: '🛡️ CT Pistol', value: strats.pistol.ct, inline: true },
+      { name: '💣 T Pistol', value: strats.pistol.t, inline: true },
+    )
+    .setColor(0xFFA500)
+    .setTimestamp()
+
+  const gunEmbed = new EmbedBuilder()
+    .setTitle(`🎯 Gun Rounds — ${name}`)
+    .addFields(
+      { name: '🛡️ CT Strats', value: strats.gun.ct },
+      { name: '💣 T Executes', value: strats.gun.t },
+      { name: '💰 Anti-eco', value: strats.gun.antiEco },
+      { name: '🔄 Force buy', value: strats.gun.forceBuy },
+    )
+    .setColor(0x00AE86)
+    .setTimestamp()
+
+  return [pistolEmbed, gunEmbed]
 }
 
 export function errorEmbed(message: string): EmbedBuilder {
