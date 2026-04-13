@@ -10,6 +10,7 @@ async function loadCommands(): Promise<void> {
     'analyze',
     'player',
     'live',
+    'strats',
   ]
 
   for (const file of commandFiles) {
