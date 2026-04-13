@@ -208,3 +208,15 @@ export interface PickBanResult {
   allMaps: MapScore[]
 }
 
+export interface MapStrats {
+  pistol: {
+    ct: string
+    t: string
+  }
+  gun: {
+    ct: string
+    t: string
+    antiEco: string
+    forceBuy: string
+  }
+}
