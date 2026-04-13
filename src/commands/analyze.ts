@@ -1,11 +1,10 @@
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand, PickBanResult } from '../types/index.js'
-import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, SlashCommandBuilder } from 'discord.js'
+import type { BotCommand } from '../types/index.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
 import { analyzeLobby } from '../services/analyzer.js'
 import { faceitApi } from '../services/faceit-api.js'
-import { renderAnalyzeImage } from '../services/image-renderer.js'
 import { DEFAULT_MATCH_COUNT } from '../utils/constants.js'
-import { errorEmbed } from '../utils/embeds.js'
+import { errorEmbed, pickBanEmbed } from '../utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()
@@ -42,7 +41,7 @@ export default {
 
     if (teamOption) {
       const result = await analyzeLobby(roomId, teamOption, matchCount)
-      await sendAnalyzeImage(interaction, result)
+      await interaction.editReply({ embeds: [pickBanEmbed(result)], components: [], content: '' })
       return
     }
 
@@ -76,30 +75,10 @@ export default {
       await buttonInteraction.deferUpdate()
 
       const result = await analyzeLobby(matchId, Number(side) as 1 | 2, Number(count))
-      await sendAnalyzeImage(interaction, result)
+      await interaction.editReply({ embeds: [pickBanEmbed(result)], components: [], content: '' })
     }
     catch {
       await interaction.editReply({ content: 'Temps écoulé, relance la commande.', components: [] })
     }
   },
 } satisfies BotCommand
-
-async function sendAnalyzeImage(
-  interaction: ChatInputCommandInteraction,
-  result: PickBanResult,
-): Promise<void> {
-  const imageBuffer = await renderAnalyzeImage(result)
-  const attachment = new AttachmentBuilder(imageBuffer, { name: 'analyze.png' })
-  const embed = new EmbedBuilder()
-    .setTitle('📊 Analyse Pick & Ban')
-    .setImage('attachment://analyze.png')
-    .setColor(0xFF5500)
-    .setTimestamp()
-
-  await interaction.editReply({
-    embeds: [embed],
-    files: [attachment],
-    components: [],
-    content: '',
-  })
-}

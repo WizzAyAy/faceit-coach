@@ -208,26 +208,3 @@ export interface PickBanResult {
   allMaps: MapScore[]
 }
 
-export interface TeamAnalysis {
-  players: PlayerAnalysis[]
-  averageElo: number
-}
-
-export interface PredictionResult {
-  map: string
-  team1WinProbability: number
-  team2WinProbability: number
-  keyPlayers: { nickname: string, contribution: number }[]
-}
-
-export interface StratsResult {
-  map: string
-  recommendedSide: 'CT' | 'T'
-  ctWinrate: number
-  tWinrate: number
-  playerBreakdown: {
-    nickname: string
-    ctWinrate: number
-    tWinrate: number
-  }[]
-}

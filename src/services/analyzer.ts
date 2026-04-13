@@ -23,16 +23,6 @@ function normalizeKd(kd: number): number {
   return kd / (kd + 1)
 }
 
-export interface MapAnalysis {
-  map: string
-  ourScore: number
-  theirScore: number
-  advantage: number
-  confidence: 'high' | 'medium' | 'low'
-  ourTotalMatches: number
-  theirTotalMatches: number
-}
-
 export function calculateMapScores(players: PlayerAnalysis[]): Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }> {
   const scores: Record<string, { score: number, totalMatches: number, breakdown: ScoreBreakdown }> = {}
 

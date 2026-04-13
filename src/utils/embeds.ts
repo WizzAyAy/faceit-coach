@@ -1,4 +1,4 @@
-import type { MapScore, PickBanResult, StratsResult } from '../types/index.js'
+import type { MapScore, PickBanResult } from '../types/index.js'
 import { EmbedBuilder } from 'discord.js'
 import { BAN_THRESHOLD, MAP_CT_BIAS, MAP_DISPLAY_NAMES, PICK_THRESHOLD } from './constants.js'
 
@@ -80,21 +80,6 @@ export function playerEmbed(
       },
     )
     .setColor(0x5865F2)
-    .setTimestamp()
-}
-
-export function stratsEmbed(result: StratsResult): EmbedBuilder {
-  const lines = result.playerBreakdown.map(p =>
-    `**${p.nickname}:** CT ${Math.round(p.ctWinrate * 100)}% | T ${Math.round(p.tWinrate * 100)}%`,
-  )
-
-  return new EmbedBuilder()
-    .setTitle(`🎯 Strats — ${mapName(result.map)}`)
-    .setDescription(`**Côté recommandé : ${result.recommendedSide}**\n\nCT global: ${pct(result.ctWinrate)} | T global: ${pct(result.tWinrate)}`)
-    .addFields(
-      { name: 'Détail par joueur', value: lines.join('\n') || 'N/A' },
-    )
-    .setColor(0x57F287)
     .setTimestamp()
 }
 
