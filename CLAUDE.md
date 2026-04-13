@@ -35,6 +35,8 @@ src/
 │   ├── analyze.ts        # /analyze — recommandations pick/ban d'un lobby
 │   ├── player.ts         # /player — stats d'un joueur
 │   └── live.ts           # /live — check si un joueur est en match + auto-analyze
+├── data/
+│   └── strats.ts          # Donnees statiques de strategies par map
 ├── services/
 │   ├── faceit-api.ts     # Client FACEIT API avec cache et retry 429
 │   ├── analyzer.ts       # Algorithme d'analyse des maps (scores, pick/ban)
@@ -77,6 +79,15 @@ Verifie si un joueur est en match et lance l'analyse automatiquement.
 | pseudo | string | oui | Pseudo FACEIT |
 
 **Flow:** fetch player → derniere partie → si ONGOING/READY: auto-analyze → embed `pickBanEmbed()` — sinon: message "pas en match"
+
+### /strats
+Affiche les strategies competitives CS2 pour une map (pistol rounds + gun rounds).
+
+| Option | Type | Requis | Description |
+|--------|------|--------|-------------|
+| map | string choice | oui | Map CS2 (7 maps du pool) |
+
+**Flow:** lookup `MAP_STRATS[map]` → 2 embeds `stratsEmbeds()` (pistol + gun rounds). Donnees statiques, pas d'appel API.
 
 ## Services
 
@@ -168,5 +179,4 @@ Cache in-memory via `node-cache`.
 
 Ces elements existent mais ne sont utilises par aucune commande :
 - `src/services/predictor.ts` + ses tests — prediction de victoire
-- `stratsEmbed()` dans embeds.ts — embed strats par side
 - Types `PredictionResult` et `StratsResult`
