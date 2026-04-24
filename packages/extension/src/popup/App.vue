@@ -4,6 +4,7 @@ import AnalyzeTab from '../components/AnalyzeTab.vue'
 import Logo from '../components/Logo.vue'
 import PlayerTab from '../components/PlayerTab.vue'
 import { useCurrentRoom } from '../composables/useCurrentRoom.js'
+import { useI18n } from '../composables/useI18n.js'
 import { useSettingsStore } from '../stores/settings.js'
 
 type Tab = 'analyze' | 'player'
@@ -11,6 +12,7 @@ const tab = ref<Tab>('player')
 
 const settings = useSettingsStore()
 const { roomId } = useCurrentRoom()
+const { t } = useI18n()
 
 onMounted(async () => {
   await settings.load()
@@ -29,7 +31,7 @@ onMounted(async () => {
           FACEIT Coach
         </h1>
         <p class="text-[10px] leading-none opacity-60">
-          CS2 pick/ban & stats
+          {{ t('extension.tagline') }}
         </p>
       </div>
     </header>
@@ -40,18 +42,18 @@ onMounted(async () => {
         :class="tab === 'player' ? 'bg-faceit-primary font-medium' : 'bg-black/30 hover:bg-black/20'"
         @click="tab = 'player'"
       >
-        Player
+        {{ t('extension.tabs.player') }}
       </button>
       <button
         class="relative flex-1 px-3 py-1.5"
         :class="tab === 'analyze' ? 'bg-faceit-primary font-medium' : 'bg-black/30 hover:bg-black/20'"
         @click="tab = 'analyze'"
       >
-        Analyze
+        {{ t('extension.tabs.analyze') }}
         <span
           v-if="roomId"
           class="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green-400"
-          title="Room detectee"
+          :title="t('extension.tabs.roomDetectedTitle')"
         />
       </button>
     </nav>

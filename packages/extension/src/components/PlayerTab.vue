@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { PlayerResponse } from '../lib/api-client.js'
 import { onMounted, ref } from 'vue'
+import { useI18n } from '../composables/useI18n.js'
 import { ApiClient } from '../lib/api-client.js'
 import { useSettingsStore } from '../stores/settings.js'
 
 const settings = useSettingsStore()
+const { t } = useI18n()
 const pseudo = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -26,7 +28,7 @@ async function search() {
     await settings.save({ defaultPseudo: pseudo.value.trim() })
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : t('extension.analyze.unknownError')
   }
   finally {
     loading.value = false
@@ -39,7 +41,7 @@ async function search() {
     <form class="flex gap-2" @submit.prevent="search">
       <input
         v-model="pseudo"
-        placeholder="Pseudo FACEIT"
+        :placeholder="t('extension.player.placeholder')"
         class="flex-1 border border-white/10 rounded bg-black/30 px-3 py-2 text-sm outline-none focus:border-faceit-primary"
       >
       <button
@@ -47,7 +49,7 @@ async function search() {
         :disabled="loading"
         class="rounded bg-faceit-primary px-3 py-2 text-sm font-medium disabled:opacity-50 hover:opacity-90"
       >
-        {{ loading ? '...' : 'Go' }}
+        {{ loading ? t('extension.player.loading') : t('extension.player.goBtn') }}
       </button>
     </form>
 
@@ -71,19 +73,19 @@ async function search() {
       <div class="grid grid-cols-3 gap-2 text-center text-sm">
         <div class="rounded bg-black/30 p-2">
           <div class="text-xs opacity-60">
-            Winrate
+            {{ t('extension.player.winrate') }}
           </div>
           <div>{{ player.lifetime.winrate }}</div>
         </div>
         <div class="rounded bg-black/30 p-2">
           <div class="text-xs opacity-60">
-            K/D
+            {{ t('extension.player.kd') }}
           </div>
           <div>{{ player.lifetime.kd }}</div>
         </div>
         <div class="rounded bg-black/30 p-2">
           <div class="text-xs opacity-60">
-            HS%
+            {{ t('extension.player.hs') }}
           </div>
           <div>{{ player.lifetime.hs }}</div>
         </div>
@@ -91,7 +93,7 @@ async function search() {
 
       <div v-if="player.maps.length" class="space-y-1">
         <h2 class="text-xs uppercase opacity-60">
-          Maps
+          {{ t('extension.player.maps') }}
         </h2>
         <ul class="text-sm space-y-0.5">
           <li
@@ -100,7 +102,7 @@ async function search() {
             class="flex justify-between"
           >
             <span>{{ m.map.replace('de_', '') }}</span>
-            <span class="opacity-80">{{ m.winrate }}% · {{ m.matches }}m</span>
+            <span class="opacity-80">{{ m.winrate }}% · {{ t('common.matchesShort', { n: m.matches }) }}</span>
           </li>
         </ul>
       </div>

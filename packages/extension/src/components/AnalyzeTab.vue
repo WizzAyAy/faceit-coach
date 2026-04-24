@@ -2,11 +2,13 @@
 import type { MapScore, MatchResponse, PickBanResult } from '../lib/api-client.js'
 import { ref, watch } from 'vue'
 import { useCurrentRoom } from '../composables/useCurrentRoom.js'
+import { useI18n } from '../composables/useI18n.js'
 import { ApiClient } from '../lib/api-client.js'
 import { useSettingsStore } from '../stores/settings.js'
 
 const settings = useSettingsStore()
 const { roomId } = useCurrentRoom()
+const { t } = useI18n()
 
 const manualRoomId = ref('')
 const team = ref<1 | 2>(1)
@@ -74,7 +76,7 @@ watch(manualRoomId, () => {
 async function analyze() {
   const id = effectiveRoomId()
   if (!id) {
-    error.value = 'Aucune room detectee — colle un room_id ci-dessous.'
+    error.value = t('extension.analyze.noRoomError')
     return
   }
   loading.value = true
@@ -84,7 +86,7 @@ async function analyze() {
     result.value = await apiClient().analyze(id, team.value)
   }
   catch (e) {
-    error.value = e instanceof Error ? e.message : 'Unknown error'
+    error.value = e instanceof Error ? e.message : t('extension.analyze.unknownError')
   }
   finally {
     loading.value = false
@@ -114,10 +116,10 @@ function rowColor(m: MapScore): string {
 
 function confidenceLabel(c: MapScore['confidence']): string {
   if (c === 'high')
-    return 'Confiance élevée'
+    return t('common.confidence.high')
   if (c === 'medium')
-    return 'Confiance moyenne'
-  return 'Confiance faible'
+    return t('common.confidence.medium')
+  return t('common.confidence.low')
 }
 
 function matchCountColor(n: number): string {
@@ -130,15 +132,31 @@ function matchCountColor(n: number): string {
 
 function breakdownTooltip(m: MapScore): string {
   return [
-    `${mapShort(m.map).toUpperCase()}`,
+    mapShort(m.map).toUpperCase(),
     '',
-    `Toi — WR ${pctAbs(m.ourBreakdown.winrate)} · K/D ${m.ourBreakdown.kd.toFixed(2)} · ELO moyen ${Math.round(m.ourBreakdown.elo)}`,
-    `Eux — WR ${pctAbs(m.theirBreakdown.winrate)} · K/D ${m.theirBreakdown.kd.toFixed(2)} · ELO moyen ${Math.round(m.theirBreakdown.elo)}`,
+    t('extension.analyze.tooltip.usLine', {
+      wr: pctAbs(m.ourBreakdown.winrate),
+      kd: m.ourBreakdown.kd.toFixed(2),
+      elo: Math.round(m.ourBreakdown.elo),
+    }),
+    t('extension.analyze.tooltip.themLine', {
+      wr: pctAbs(m.theirBreakdown.winrate),
+      kd: m.theirBreakdown.kd.toFixed(2),
+      elo: Math.round(m.theirBreakdown.elo),
+    }),
     '',
-    `Score: ${pctAbs(m.ourScore)} vs ${pctAbs(m.theirScore)}  (avantage ${pct(m.advantage)})`,
-    `${confidenceLabel(m.confidence)} — ${m.ourTotalMatches}/${m.theirTotalMatches} matchs analyses`,
+    t('extension.analyze.tooltip.scoreLine', {
+      us: pctAbs(m.ourScore),
+      them: pctAbs(m.theirScore),
+      adv: pct(m.advantage),
+    }),
+    t('extension.analyze.tooltip.confidenceLine', {
+      conf: confidenceLabel(m.confidence),
+      usMatches: m.ourTotalMatches,
+      themMatches: m.theirTotalMatches,
+    }),
     '',
-    `Score = 50% winrate + 30% K/D + 20% poids ELO, ajuste pour l'incertitude sur faibles samples`,
+    t('extension.analyze.tooltip.formulaLine'),
   ].join('\n')
 }
 </script>
@@ -147,17 +165,17 @@ function breakdownTooltip(m: MapScore): string {
   <div class="space-y-3">
     <div v-if="roomId" class="flex items-center gap-1 text-xs opacity-70">
       <div i-mdi-check-circle class="text-green-400" />
-      Room detectee : <span class="font-mono">{{ roomId.slice(0, 8) }}…</span>
+      {{ t('extension.analyze.roomDetected', { id: roomId.slice(0, 8) }) }}
     </div>
     <div v-else class="flex items-center gap-1 text-xs opacity-60">
       <div i-mdi-information-outline />
-      Aucune room detectee sur cet onglet
+      {{ t('extension.analyze.noRoom') }}
     </div>
 
     <input
       v-if="!roomId"
       v-model="manualRoomId"
-      placeholder="Colle le room_id ici"
+      :placeholder="t('extension.analyze.roomPlaceholder')"
       class="w-full border border-white/10 rounded bg-black/30 px-3 py-2 text-sm font-mono outline-none focus:border-faceit-primary"
     >
 
@@ -171,20 +189,20 @@ function breakdownTooltip(m: MapScore): string {
         class="flex items-center gap-2"
         :class="(key === 'faction1' && team === 1) || (key === 'faction2' && team === 2) ? 'text-faceit-primary font-medium' : 'opacity-80'"
       >
-        <span class="w-12 shrink-0">{{ key === 'faction1' ? 'Team 1' : 'Team 2' }}</span>
+        <span class="w-12 shrink-0">{{ t('extension.analyze.team', { n: key === 'faction1' ? 1 : 2 }) }}</span>
         <span class="truncate">{{ faction.roster.map(p => p.nickname).join(', ') }}</span>
       </div>
     </section>
 
     <label class="block text-xs opacity-70 space-y-1">
       <span class="flex items-center gap-1">
-        Mon equipe
+        {{ t('extension.analyze.myTeam') }}
         <span
           v-if="teamAutoDetected"
           class="rounded bg-green-600/30 px-1 text-[10px] text-green-300"
-          title="Detecte via ton pseudo par defaut"
+          :title="t('extension.analyze.autoTip')"
         >
-          auto
+          {{ t('extension.analyze.autoBadge') }}
         </span>
       </span>
       <select
@@ -193,10 +211,10 @@ function breakdownTooltip(m: MapScore): string {
         @change="teamAutoDetected = false"
       >
         <option :value="1">
-          Team 1
+          {{ t('extension.analyze.team', { n: 1 }) }}
         </option>
         <option :value="2">
-          Team 2
+          {{ t('extension.analyze.team', { n: 2 }) }}
         </option>
       </select>
     </label>
@@ -206,10 +224,10 @@ function breakdownTooltip(m: MapScore): string {
       class="w-full rounded bg-faceit-primary px-3 py-2 text-sm font-medium disabled:opacity-50 hover:opacity-90"
       @click="analyze"
     >
-      {{ loading ? 'Analyse en cours…' : 'Lancer l\'analyse' }}
+      {{ loading ? t('extension.analyze.loading') : t('extension.analyze.startBtn') }}
     </button>
     <p class="text-center text-[10px] opacity-50">
-      Historique des 6 derniers mois
+      {{ t('extension.analyze.periodNote') }}
     </p>
 
     <p v-if="error" class="text-sm text-red-400">
@@ -232,23 +250,23 @@ function breakdownTooltip(m: MapScore): string {
         </div>
         <div class="flex items-center justify-between text-[11px] opacity-80">
           <span>
-            <span class="opacity-60">toi</span>
+            <span class="opacity-60">{{ t('extension.analyze.us') }}</span>
             {{ pctAbs(m.ourScore) }}
             <span class="font-mono" :class="matchCountColor(m.ourTotalMatches)">
-              ({{ m.ourTotalMatches }}m)
+              ({{ t('common.matchesShort', { n: m.ourTotalMatches }) }})
             </span>
           </span>
           <span>
-            <span class="opacity-60">eux</span>
+            <span class="opacity-60">{{ t('extension.analyze.them') }}</span>
             {{ pctAbs(m.theirScore) }}
             <span class="font-mono" :class="matchCountColor(m.theirTotalMatches)">
-              ({{ m.theirTotalMatches }}m)
+              ({{ t('common.matchesShort', { n: m.theirTotalMatches }) }})
             </span>
           </span>
         </div>
       </div>
       <p class="pt-1 text-[10px] opacity-50">
-        💡 Survole une map pour voir le detail (winrate, K/D, ELO)
+        {{ t('extension.analyze.hoverHint') }}
       </p>
     </section>
   </div>
