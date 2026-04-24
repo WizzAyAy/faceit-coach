@@ -2,32 +2,42 @@
   "name": "faceit-coach",
   "type": "module",
   "version": "1.0.0",
+  "private": true,
   "packageManager": "pnpm@10.33.0",
-  "description": "",
-  "author": "",
+  "description": "FACEIT Coach — Discord bot + Chrome extension for CS2",
   "license": "ISC",
-  "keywords": [],
-  "main": "index.js",
   "scripts": {
-    "dev": "tsx --env-file=.env src/index.ts",
-    "build": "tsc",
-    "start": "node --env-file=.env dist/index.js",
-    "test": "vitest",
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "coverage": "turbo run coverage",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
-  },
-  "dependencies": {
-    "discord.js": "^14.26.2",
-    "node-cache": "^5.1.2",
-    "undici": "^8.0.2"
+    "lint:fix": "eslint . --fix",
+    "dev:bot": "pnpm --filter @faceit-coach/bot dev",
+    "dev:api": "pnpm --filter @faceit-coach/api dev",
+    "dev:extension": "pnpm --filter @faceit-coach/extension dev",
+    "prepare": "simple-git-hooks"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.1.1",
     "@types/node": "^25.6.0",
+    "@unocss/eslint-plugin": "^66.6.8",
+    "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^10.2.0",
     "jiti": "^2.6.1",
+    "lint-staged": "^16.4.0",
+    "sharp": "^0.34.5",
+    "simple-git-hooks": "^2.13.1",
     "tsx": "^4.21.0",
+    "turbo": "^2.9.6",
     "typescript": "^6.0.2",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   }
 }
