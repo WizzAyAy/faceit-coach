@@ -12,7 +12,7 @@
 - **Monorepo:** pnpm workspaces + Turborepo
 - **Bot:** discord.js 14
 - **API:** Hono + @hono/node-server + @hono/zod-validator + Zod + Pino
-- **Extension:** Chrome MV3 via Vite + @crxjs/vite-plugin + Vue 3 + Pinia + VueUse + UnoCSS + @webext-core/messaging + unplugin-auto-import/components
+- **Extension:** Chrome MV3 via Vite + @crxjs/vite-plugin + Vue 3 + Pinia + VueUse + UnoCSS + unplugin-auto-import/components
 - **Tests:** Vitest (globals: true)
 - **Lint:** ESLint preset @antfu/eslint-config (+ vue + unocss)
 - **Build:** `tsc` avec project references (composite/incremental)
@@ -55,12 +55,16 @@ src/
 ├── index.ts                # barrel export
 ├── types.ts                # FACEIT API types + types domaine (MapScore, PickBanResult, ...)
 ├── data/strats.ts          # strategies statiques par map
+├── i18n/                   # SOURCE DE VERITE des traductions (bot + extension)
+│   ├── index.ts            # t(locale, key, vars?), detectLocale, LOCALES, messages
+│   ├── en.ts               # dictionnaire EN (forme canonique)
+│   └── fr.ts               # dictionnaire FR (structure clonee via DeepStringify<typeof en>)
 ├── services/
 │   ├── faceit-api.ts       # client FACEIT (init via initFaceitApi(key) au bootstrap)
 │   ├── analyzer.ts         # scoring + pick/ban
 │   └── cache.ts            # cache in-memory (node-cache)
 ├── utils/constants.ts      # map pool, seuils, TTL, CT bias
-└── __tests__/              # vitest — analyzer, faceit-api, cache, constants
+└── __tests__/              # vitest — analyzer, faceit-api, cache, constants, i18n
 ```
 
 ### packages/bot
@@ -80,11 +84,11 @@ src/
 ├── index.ts                # Hono app — security headers, CORS, logger, rate limit, auth (X-API-Key), routes, graceful shutdown (SIGTERM/SIGINT)
 ├── config.ts               # process.env → { faceitApiKey, port, corsOrigins, apiKey, rateLimitPerMinute }
 ├── logger.ts               # pino + redact (authorization, x-api-key) + pino-pretty en dev
-├── schemas.ts              # zod schemas (analyzeBody, pseudoParams, mapParams)
+├── schemas.ts              # zod schemas (analyzeBody, pseudoParams, mapParams, liveQuery)
 └── routes/
-    ├── analyze.ts          # POST  /analyze    { roomId, team, matches? }
+    ├── analyze.ts          # POST  /analyze            { roomId, team, periodMonths? }
     ├── player.ts           # GET   /player/:pseudo
-    ├── live.ts             # GET   /live/:pseudo
+    ├── live.ts             # GET   /live/:pseudo       ?periodMonths=N
     ├── match.ts            # GET   /match/:roomId
     └── strats.ts           # GET   /strats     /strats/:map
 ```
@@ -92,21 +96,49 @@ src/
 ### packages/extension
 ```
 src/
-├── manifest.ts             # MV3 typed manifest (crxjs defineManifest)
-├── popup/                  # Vue app — index.html, main.ts, App.vue
-├── options/                # Vue app — index.html, main.ts, Options.vue
-├── background/index.ts     # service worker, messages typés @webext-core/messaging
-├── content/index.ts        # injection sur faceit.com, detection roomId
+├── manifest.ts             # MV3 typed manifest (crxjs defineManifest) — popup only, pas de bg ni content
+├── popup/                  # Vue app — index.html, main.ts, App.vue (2 onglets: Player / Analyze)
+├── options/                # Vue app — index.html, main.ts, Options.vue (+ choix de langue)
+├── components/             # AnalyzeTab.vue, PlayerTab.vue, Logo.vue
+├── composables/
+│   ├── useCurrentRoom.ts   # lit la tab active via chrome.tabs
+│   └── useI18n.ts          # wrapper reactif autour de core.t + detectLocale(navigator.language)
 ├── lib/api-client.ts       # ApiClient (fetch wrapper, envoie X-API-Key si configure) + types re-exportes de core
-└── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey (persistes en chrome.storage.sync)
+└── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey, localePref ('auto' | Locale)
 ```
 
 ## Responsabilites
 
-- **core** : logique FACEIT pure — jamais de `process.env`, jamais de `chrome.*`, jamais de `discord.js`. `initFaceitApi(key)` doit etre appele une fois par le consommateur avant toute requete.
+- **core** : logique FACEIT pure + i18n — jamais de `process.env`, jamais de `chrome.*`, jamais de `discord.js`. `initFaceitApi(key)` doit etre appele une fois par le consommateur avant toute requete.
 - **bot** : importe `@faceit-coach/core` directement (pas d'appel HTTP intermediaire). Pas de dependance a l'API.
 - **api** : proxifie core via HTTP pour les clients externes (extension + futur). Valide toutes les entrees avec Zod.
 - **extension** : pur client de l'API. Jamais d'appel FACEIT direct (la cle reste cote serveur).
+
+## i18n (internationalisation)
+
+**Toutes les traductions sont centralisees dans `packages/core/src/i18n/`** — deux fichiers `en.ts` et `fr.ts` suivent la meme arborescence (forcee via `DeepStringify<typeof en>`). Langues supportees pour l'instant : **en** (defaut) et **fr**.
+
+**API :**
+- `t(locale, key, vars?)` — resolve une cle pointee (`"extension.analyze.startBtn"`, `"common.error.playerNotFound"`). Cles typees via `TranslationKey` (path union deduit de la structure EN). Interpolation `{name}` via `vars`.
+- `detectLocale(hint)` — normalise un BCP47 / Discord locale (`"fr-FR"` → `"fr"`, fallback `"en"`).
+- `LOCALES`, `DEFAULT_LOCALE`, `messages` — exposes pour les cas ou on a besoin du dictionnaire brut (ex: descriptions de slash commands avec `setDescriptionLocalizations`).
+
+**Bot Discord :**
+- Descriptions des slash commands : `setDescription(messages.en....)` + `setDescriptionLocalizations({ fr: messages.fr.... })` — Discord affiche la bonne selon la locale utilisateur.
+- Reponses (embeds, messages) : chaque handler lit `detectLocale(interaction.locale)` puis passe `locale` a `errorEmbed(locale, msg)`, `pickBanEmbed(locale, result)`, etc. Les helpers dans `embeds.ts` prennent la locale en premier argument.
+
+**Extension Chrome :**
+- `useI18n()` composable (dans `packages/extension/src/composables/useI18n.ts`) expose `t` + `locale` reactifs. La locale par defaut est derivee de `navigator.language`, overridable via le store `settings.localePref` (`'auto' | Locale`). Le choix est persiste dans `chrome.storage.sync` et expose dans la page Options (select "Language").
+
+**Ajouter une nouvelle traduction :**
+1. Ajouter la cle dans `en.ts` (forme canonique) — la forme est automatiquement imposee a `fr.ts` par le type.
+2. Ajouter la traduction correspondante dans `fr.ts`.
+3. Utiliser via `t('path.to.key', vars?)` — tests + lint confirment la presence des deux.
+
+**Ajouter une nouvelle langue :**
+1. Creer `packages/core/src/i18n/<code>.ts` avec `const <code>: DeepStringify<typeof en> = {...}`.
+2. Ajouter a `LOCALES` et au map `messages` dans `i18n/index.ts`.
+3. Les composants existent deja en `t(...)` — pas besoin de les toucher.
 
 ## Commandes Discord
 
@@ -118,7 +150,7 @@ Analyse un lobby FACEIT et recommande les picks/bans.
 | Option | Type | Requis | Description |
 |--------|------|--------|-------------|
 | room_id | string | oui | ID de la room FACEIT |
-| matches | integer (10-100) | non | Nombre de matchs historiques (defaut: 50) |
+| months | integer (1-24) | non | Periode d'historique en mois (defaut: 6) |
 | team | choice 1\|2 | non | Equipe du joueur (sinon: boutons de selection) |
 
 ### /player
@@ -134,6 +166,7 @@ Verifie si un joueur est en match et lance l'analyse automatiquement.
 | Option | Type | Requis | Description |
 |--------|------|--------|-------------|
 | pseudo | string | oui | Pseudo FACEIT |
+| months | integer (1-24) | non | Periode d'historique en mois (defaut: 6) |
 
 ### /strats
 Strategies CS2 par map (pistol + gun rounds), donnees statiques.
@@ -147,9 +180,9 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 | Methode | Path | Body / Params | Retour |
 |---------|------|---------------|--------|
 | GET | `/health` | — | `{ status: 'ok' }` (bypass auth + rate limit) |
-| POST | `/analyze` | `{ roomId, team: 1\|2, matches? }` | `PickBanResult` |
+| POST | `/analyze` | `{ roomId, team: 1\|2, periodMonths? (1-24) }` | `PickBanResult` + `meta` |
 | GET | `/player/:pseudo` | — | profil + stats lifetime + maps triees |
-| GET | `/live/:pseudo` | — | `{ live, matchId?, team?, analysis? }` |
+| GET | `/live/:pseudo` | `?periodMonths=N (1-24)` | `{ live, matchId?, team?, analysis?, meta? }` |
 | GET | `/match/:roomId` | — | `{ matchId, status, teams }` |
 | GET | `/strats` | — | `{ maps: [...] }` |
 | GET | `/strats/:map` | — | `{ map, strats }` |
@@ -163,10 +196,11 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 
 ## Extension Chrome (MV3)
 
-- **Popup** : formulaire pseudo → `ApiClient.getPlayer()` → profil + ELO + top 5 maps.
+- **Popup** : 2 onglets.
+  - **Player** : recherche par pseudo → `ApiClient.getPlayer()` → profil + ELO + top 5 maps.
+  - **Analyze** : detecte le `roomId` de l'onglet actif via `useCurrentRoom` (lit `chrome.tabs.query`), charge le match via `ApiClient.getMatch()`, auto-selectionne l'equipe via `defaultPseudo`, puis `ApiClient.analyze()` → tableau pick/ban avec tooltip breakdown.
 - **Options** : configurer `apiBaseUrl` (defaut `http://localhost:8787`), `defaultPseudo`, et `apiKey` (facultatif, requis si l'API l'impose). Persistes via `chrome.storage.sync`.
-- **Background service worker** : pont typé (@webext-core/messaging) — `getLive`, `getPlayer`, `analyze`, `getStrats`. Lit `apiBaseUrl` + `apiKey` depuis le storage et les injecte dans `ApiClient`.
-- **Content script** : injecté sur `faceit.com`, detecte le `roomId` via l'URL (`/room/<uuid>`), notifie le background.
+- **Pas de background worker ni de content script** : tout se passe dans le popup. La detection de room utilise directement `chrome.tabs` via `useCurrentRoom`.
 - **Host permission** : `http://localhost:8787/*` (a adapter en prod).
 - **API key** : `ApiClient` envoie `X-API-Key: <apiKey>` sur toutes les requetes sauf `/health` quand la cle est definie.
 
@@ -180,7 +214,7 @@ Client pour FACEIT Open Data v4 (`https://open.faceit.com/data/v4`). Cle API pas
 - `getPlayer(playerId)` → `FaceitPlayer`
 - `getPlayerStats(playerId)` → `FaceitPlayerStats`
 - `getPlayerHistory(playerId, limit)` → `FaceitMatchHistory`
-- `getPlayerGameStats(playerId, limit)` → `FaceitGameStatsItem[]`
+- `getPlayerGameStats(playerId, opts)` → `FaceitGameStatsItem[]` — `opts` = `number` (legacy: single page size) ou `{ from?, to?, maxTotal?, pageSize? }` (paginated, auto-cursor jusqu'a `maxTotal`)
 - `getMatch(matchId)` → `FaceitMatch`
 
 **Erreurs:** `FaceitApiError` custom, retry avec delay `retry-after` sur 429 (3 tentatives).
@@ -194,12 +228,15 @@ Client pour FACEIT Open Data v4 (`https://open.faceit.com/data/v4`). Cle API pas
 Algorithme de scoring et classification pick/ban.
 
 **Fonctions exportees:**
-- `analyzeLobby(matchId, teamSide, matchCount)` → `PickBanResult`
-- `analyzeTeam(playerIds, matchCount)` → `PlayerAnalysis[]`
+- `analyzeLobby(matchId, teamSide, options?)` → `PickBanResult`
+- `analyzeTeam(playerIds, options?)` → `PlayerAnalysis[]`
 - `calculateMapScores(players)` → scores par map avec breakdown
 - `computePickBan(ourScores, theirScores)` → `PickBanResult`
 - `calculatePlayerWeight(playerElo, averageElo)` → number
 - `adjustWinrateForUncertainty(winrate, matchCount)` → number
+- `monthsAgoTimestamp(months)` → number (Unix seconds)
+
+`AnalyzeOptions = { fromTimestamp?: number, maxMatchesPerPlayer?: number }` — defaut `maxMatchesPerPlayer=300`. Le bot `/analyze` et `/live` ainsi que l'API passent `fromTimestamp = monthsAgoTimestamp(months)` selon l'option utilisateur (defaut 6 mois).
 
 **Formule de score par map:**
 ```
