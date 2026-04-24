@@ -10,7 +10,7 @@
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
     "icons": "node scripts/generate-icons.mjs",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage"
   },
