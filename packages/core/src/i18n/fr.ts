@@ -1,6 +1,10 @@
 import type { en } from './en.js'
 
-export const fr: typeof en = {
+type DeepStringify<T> = T extends string
+  ? string
+  : { [K in keyof T]: DeepStringify<T[K]> }
+
+export const fr: DeepStringify<typeof en> = {
   common: {
     confidence: {
       high: 'Confiance élevée',

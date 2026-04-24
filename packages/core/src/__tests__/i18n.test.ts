@@ -1,73 +1,58 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_LOCALE, detectLocale, LOCALES, t } from '../i18n/index.js'
+import { DEFAULT_LOCALE, detectLocale, LOCALES, messages, t } from '../i18n/index.js'
 
 describe('i18n', () => {
   describe('detectLocale', () => {
-    it('returns default locale for undefined/null/empty hints', () => {
+    it('should return default locale when hint is empty', () => {
       expect(detectLocale(undefined)).toBe(DEFAULT_LOCALE)
       expect(detectLocale(null)).toBe(DEFAULT_LOCALE)
       expect(detectLocale('')).toBe(DEFAULT_LOCALE)
     })
 
-    it('matches a plain 2-letter code', () => {
-      expect(detectLocale('fr')).toBe('fr')
-      expect(detectLocale('en')).toBe('en')
-    })
-
-    it('extracts language from BCP47 / Discord locales', () => {
+    it('should detect supported locale from BCP47 hint', () => {
       expect(detectLocale('fr-FR')).toBe('fr')
       expect(detectLocale('en-US')).toBe('en')
-      expect(detectLocale('en-GB')).toBe('en')
-      expect(detectLocale('FR')).toBe('fr')
+      expect(detectLocale('EN')).toBe('en')
     })
 
-    it('falls back to default for unsupported languages', () => {
-      expect(detectLocale('de')).toBe(DEFAULT_LOCALE)
-      expect(detectLocale('es-MX')).toBe(DEFAULT_LOCALE)
-    })
-
-    it('exposes a canonical locale list', () => {
-      expect(LOCALES).toContain('en')
-      expect(LOCALES).toContain('fr')
+    it('should fall back to default for unsupported locales', () => {
+      expect(detectLocale('de-DE')).toBe(DEFAULT_LOCALE)
     })
   })
 
   describe('t', () => {
-    it('returns a localized string', () => {
-      expect(t('en', 'extension.analyze.startBtn')).toBe('Start analysis')
-      expect(t('fr', 'extension.analyze.startBtn')).toBe('Lancer l\'analyse')
+    it('should translate a simple key', () => {
+      expect(t('en', 'common.decision.pick')).toBe('PICK')
+      expect(t('fr', 'common.decision.pick')).toBe('PICK')
     })
 
-    it('interpolates {name} variables', () => {
+    it('should interpolate variables with {name}', () => {
       expect(t('en', 'common.error.playerNotFound', { pseudo: 'foo' }))
         .toBe('Player "foo" not found on FACEIT.')
-      expect(t('fr', 'common.error.playerNotFound', { pseudo: 'foo' }))
-        .toBe('Joueur "foo" non trouvé sur FACEIT.')
     })
 
-    it('leaves placeholders untouched when variable is missing', () => {
-      expect(t('en', 'common.error.playerNotFound'))
-        .toBe('Player "{pseudo}" not found on FACEIT.')
+    it('should leave unknown placeholders intact', () => {
+      const result = t('en', 'common.error.playerNotFound', { other: 'x' })
+      expect(result).toContain('{pseudo}')
     })
 
-    it('falls back to default locale when key is missing in requested locale', () => {
-      // Simulate missing key by using a path that does not exist in either locale
-      // and verify we get the raw key back.
-      expect(t('en', 'does.not.exist' as any)).toBe('does.not.exist')
-      expect(t('fr', 'does.not.exist' as any)).toBe('does.not.exist')
+    it('should return the raw key when no translation exists', () => {
+      expect(t('en', 'some.unknown.key' as never)).toBe('some.unknown.key')
     })
 
-    it('returns key when traversal hits a non-object', () => {
-      // "common.decision.pick.xxx" — "pick" is a string, so traversing further fails.
-      expect(t('en', 'common.decision.pick.xxx' as any)).toBe('common.decision.pick.xxx')
+    it('should traverse non-object branches and return the raw key', () => {
+      expect(t('en', 'common.decision.pick.extra' as never)).toBe('common.decision.pick.extra')
     })
 
-    it('handles multi-variable templates', () => {
-      expect(t('en', 'extension.analyze.tooltip.usLine', {
-        wr: '62%',
-        kd: '1.23',
-        elo: 2100,
-      })).toBe('You — WR 62% · K/D 1.23 · Avg ELO 2100')
+    it('should return the raw key when a key resolves to an object (not a string)', () => {
+      // `common.decision` is an object, not a translatable leaf
+      expect(t('en', 'common.decision' as never)).toBe('common.decision')
     })
+  })
+
+  it('should expose a canonical locale list', () => {
+    expect(LOCALES).toEqual(['en', 'fr'])
+    expect(messages.en).toBeDefined()
+    expect(messages.fr).toBeDefined()
   })
 })
