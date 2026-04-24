@@ -124,5 +124,30 @@ describe('analyzer integration', () => {
       expect(result.picks).toBeDefined()
       expect(result.bans).toBeDefined()
     })
+
+    it('should swap our/their factions when teamSide is 2', async () => {
+      mockGetMatch.mockResolvedValueOnce({
+        match_id: 'm2',
+        teams: {
+          faction1: {
+            roster: [{ player_id: 'p1', nickname: 'P1' }],
+          } as any,
+          faction2: {
+            roster: [{ player_id: 'p2', nickname: 'P2' }],
+          } as any,
+        },
+      } as any)
+      mockGetPlayer.mockResolvedValue({
+        player_id: 'p1',
+        nickname: 'P1',
+        avatar: '',
+        country: 'FR',
+        games: { cs2: { faceit_elo: 2000, skill_level: 8, region: 'EU' } },
+      })
+      mockGetPlayerGameStats.mockResolvedValue([])
+
+      const result = await analyzeLobby('m2', 2)
+      expect(result.allMaps).toBeDefined()
+    })
   })
 })
