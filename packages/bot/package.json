@@ -1,0 +1,20 @@
+{
+  "name": "@faceit-coach/bot",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FACEIT Coach Discord bot",
+  "scripts": {
+    "dev": "tsx --env-file=../../.env src/index.ts",
+    "build": "tsc",
+    "start": "node --env-file=../../.env dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@faceit-coach/core": "workspace:*",
+    "discord.js": "^14.26.2"
+  }
+}
