@@ -1,0 +1,20 @@
+<script setup lang="ts">
+withDefaults(defineProps<{ size?: number | string }>(), { size: 28 })
+</script>
+
+<template>
+  <svg
+    :width="size"
+    :height="size"
+    viewBox="0 0 128 128"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <g fill="#FF5500" stroke="#000000" stroke-width="6" stroke-linejoin="round">
+      <rect x="56" y="14" width="16" height="38" rx="3" ry="3" />
+      <rect x="56" y="76" width="16" height="38" rx="3" ry="3" />
+      <rect x="14" y="56" width="38" height="16" rx="3" ry="3" />
+      <rect x="76" y="56" width="38" height="16" rx="3" ry="3" />
+    </g>
+  </svg>
+</template>

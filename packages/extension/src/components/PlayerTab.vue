@@ -1,0 +1,109 @@
+<script setup lang="ts">
+import type { PlayerResponse } from '../lib/api-client.js'
+import { onMounted, ref } from 'vue'
+import { ApiClient } from '../lib/api-client.js'
+import { useSettingsStore } from '../stores/settings.js'
+
+const settings = useSettingsStore()
+const pseudo = ref('')
+const loading = ref(false)
+const error = ref('')
+const player = ref<PlayerResponse | null>(null)
+
+onMounted(() => {
+  pseudo.value = settings.defaultPseudo
+})
+
+async function search() {
+  if (!pseudo.value.trim())
+    return
+  loading.value = true
+  error.value = ''
+  player.value = null
+  try {
+    const api = new ApiClient(settings.apiBaseUrl, settings.apiKey)
+    player.value = await api.getPlayer(pseudo.value.trim())
+    await settings.save({ defaultPseudo: pseudo.value.trim() })
+  }
+  catch (e) {
+    error.value = e instanceof Error ? e.message : 'Unknown error'
+  }
+  finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-4">
+    <form class="flex gap-2" @submit.prevent="search">
+      <input
+        v-model="pseudo"
+        placeholder="Pseudo FACEIT"
+        class="flex-1 border border-white/10 rounded bg-black/30 px-3 py-2 text-sm outline-none focus:border-faceit-primary"
+      >
+      <button
+        type="submit"
+        :disabled="loading"
+        class="rounded bg-faceit-primary px-3 py-2 text-sm font-medium disabled:opacity-50 hover:opacity-90"
+      >
+        {{ loading ? '...' : 'Go' }}
+      </button>
+    </form>
+
+    <p v-if="error" class="text-sm text-red-400">
+      {{ error }}
+    </p>
+
+    <section v-if="player" class="space-y-3">
+      <div class="flex items-center gap-3">
+        <img v-if="player.avatar" :src="player.avatar" class="h-12 w-12 rounded" alt="">
+        <div>
+          <div class="font-semibold">
+            {{ player.nickname }}
+          </div>
+          <div class="text-xs opacity-70">
+            ELO {{ player.elo }} · Lvl {{ player.level }} · {{ player.region }}
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 text-center text-sm">
+        <div class="rounded bg-black/30 p-2">
+          <div class="text-xs opacity-60">
+            Winrate
+          </div>
+          <div>{{ player.lifetime.winrate }}</div>
+        </div>
+        <div class="rounded bg-black/30 p-2">
+          <div class="text-xs opacity-60">
+            K/D
+          </div>
+          <div>{{ player.lifetime.kd }}</div>
+        </div>
+        <div class="rounded bg-black/30 p-2">
+          <div class="text-xs opacity-60">
+            HS%
+          </div>
+          <div>{{ player.lifetime.hs }}</div>
+        </div>
+      </div>
+
+      <div v-if="player.maps.length" class="space-y-1">
+        <h2 class="text-xs uppercase opacity-60">
+          Maps
+        </h2>
+        <ul class="text-sm space-y-0.5">
+          <li
+            v-for="m in player.maps.slice(0, 5)"
+            :key="m.map"
+            class="flex justify-between"
+          >
+            <span>{{ m.map.replace('de_', '') }}</span>
+            <span class="opacity-80">{{ m.winrate }}% · {{ m.matches }}m</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</template>
