@@ -1,5 +1,5 @@
 import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats, ScoreBreakdown } from '../types.js'
-import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
+import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, isInMapPool, normalizeMapName, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
 import { faceitApi } from './faceit-api.js'
 
 export function calculatePlayerWeight(playerElo: number, averageElo: number): number {
@@ -155,9 +155,11 @@ export async function analyzeTeam(
     const mapStatsMap = new Map<string, { wins: number, total: number, kdSum: number, hsSum: number }>()
 
     for (const game of gameStats) {
-      const gameMap = game.Map || game.map
-      if (!gameMap || !CS2_MAP_POOL.includes(gameMap as any))
+      const rawMap = game.Map || game.map
+      // FACEIT occasionally returns display names ("Mirage") in game stats too — normalize to tech id
+      if (!rawMap || !isInMapPool(rawMap))
         continue
+      const gameMap = normalizeMapName(rawMap)
       const entry = mapStatsMap.get(gameMap) ?? { wins: 0, total: 0, kdSum: 0, hsSum: 0 }
       entry.total++
       const result = game.Result || game.result
@@ -172,9 +174,9 @@ export async function analyzeTeam(
       map,
       matches: s.total,
       wins: s.wins,
-      winrate: s.total > 0 ? s.wins / s.total : 0,
-      kdRatio: s.total > 0 ? s.kdSum / s.total : 0,
-      hsPercent: s.total > 0 ? s.hsSum / s.total : 0,
+      winrate: s.wins / s.total,
+      kdRatio: s.kdSum / s.total,
+      hsPercent: s.hsSum / s.total,
     }))
 
     return {
