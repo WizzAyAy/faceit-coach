@@ -15,4 +15,9 @@ export const mapParamsSchema = z.object({
   map: z.string().min(1),
 })
 
+export const liveQuerySchema = z.object({
+  /** How many months of recent matches to include when the player is live. Defaults to 6. */
+  periodMonths: z.coerce.number().int().min(1).max(24).optional(),
+})
+
 export type AnalyzeBody = z.infer<typeof analyzeBodySchema>
