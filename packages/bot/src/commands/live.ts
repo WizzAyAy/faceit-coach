@@ -1,19 +1,36 @@
+import type { Locale } from '@faceit-coach/core'
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types.js'
-import { analyzeLobby, faceitApi, monthsAgoTimestamp } from '@faceit-coach/core'
+import { analyzeLobby, detectLocale, faceitApi, messages, monthsAgoTimestamp, t } from '@faceit-coach/core'
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js'
 import { errorEmbed, pickBanEmbed } from '../utils/embeds.js'
+
+const DEFAULT_PERIOD_MONTHS = 6
+const MAX_MATCHES_PER_PLAYER = 300
 
 export default {
   data: new SlashCommandBuilder()
     .setName('live')
-    .setDescription('Vérifie si un joueur est en match et analyse le lobby')
+    .setDescription(messages.en.bot.commands.live.description)
+    .setDescriptionLocalizations({ fr: messages.fr.bot.commands.live.description })
     .addStringOption(opt =>
-      opt.setName('pseudo').setDescription('Pseudo FACEIT du joueur').setRequired(true),
+      opt.setName('pseudo')
+        .setDescription(messages.en.bot.commands.live.optPseudo)
+        .setDescriptionLocalizations({ fr: messages.fr.bot.commands.live.optPseudo })
+        .setRequired(true),
+    )
+    .addIntegerOption(opt =>
+      opt.setName('months')
+        .setDescription(messages.en.bot.commands.analyze.optMonths)
+        .setDescriptionLocalizations({ fr: messages.fr.bot.commands.analyze.optMonths })
+        .setMinValue(1)
+        .setMaxValue(24),
     ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    const locale = detectLocale(interaction.locale)
     const pseudo = interaction.options.getString('pseudo', true)
+    const months = interaction.options.getInteger('months') ?? DEFAULT_PERIOD_MONTHS
     await interaction.deferReply()
 
     let player
@@ -21,13 +38,13 @@ export default {
       player = await faceitApi.getPlayerByNickname(pseudo)
     }
     catch {
-      await interaction.editReply({ embeds: [errorEmbed(`Joueur "${pseudo}" non trouvé sur FACEIT.`)] })
+      await interaction.editReply({ embeds: [errorEmbed(locale, t(locale, 'common.error.playerNotFound', { pseudo }))] })
       return
     }
 
     const history = await faceitApi.getPlayerHistory(player.player_id, 1)
     if (!history.items.length) {
-      await interaction.editReply({ embeds: [errorEmbed(`${pseudo} n'a aucun match récent.`)] })
+      await interaction.editReply({ embeds: [errorEmbed(locale, t(locale, 'common.error.noRecentMatch', { pseudo }))] })
       return
     }
 
@@ -38,24 +55,24 @@ export default {
       const isTeam1 = match.teams.faction1.roster.some(p => p.player_id === player.player_id)
       const teamSide: 1 | 2 = isTeam1 ? 1 : 2
 
-      await interaction.editReply({ content: `🔴 **${pseudo}** est en match ! Analyse en cours...` })
+      await interaction.editReply({ content: t(locale, 'bot.messages.inMatchLoading', { pseudo }) })
 
       const result = await analyzeLobby(match.match_id, teamSide, {
-        fromTimestamp: monthsAgoTimestamp(6),
-        maxMatchesPerPlayer: 300,
+        fromTimestamp: monthsAgoTimestamp(months),
+        maxMatchesPerPlayer: MAX_MATCHES_PER_PLAYER,
       })
       await interaction.editReply({
-        content: `🔴 **${pseudo}** est en match !`,
-        embeds: [pickBanEmbed(result)],
+        content: t(locale, 'bot.messages.inMatch', { pseudo }),
+        embeds: [pickBanEmbed(locale, result)],
       })
     }
     else {
       const date = new Date(lastMatch.finished_at * 1000)
-      const timeAgo = formatTimeAgo(date)
+      const timeAgo = formatTimeAgo(locale, date)
 
       const embed = new EmbedBuilder()
-        .setTitle(`💤 ${pseudo} n'est pas en match`)
-        .setDescription(`Dernier match : ${timeAgo}`)
+        .setTitle(t(locale, 'bot.messages.notInMatchTitle', { pseudo }))
+        .setDescription(t(locale, 'bot.messages.lastMatchLabel', { timeAgo }))
         .setColor(0x99AAB5)
         .setTimestamp()
 
@@ -64,15 +81,15 @@ export default {
   },
 } satisfies BotCommand
 
-function formatTimeAgo(date: Date): string {
+function formatTimeAgo(locale: Locale, date: Date): string {
   const now = Date.now()
   const diffMs = now - date.getTime()
   const diffMin = Math.floor(diffMs / 60_000)
   if (diffMin < 60)
-    return `il y a ${diffMin} min`
+    return t(locale, 'bot.messages.timeAgoMin', { n: diffMin })
   const diffH = Math.floor(diffMin / 60)
   if (diffH < 24)
-    return `il y a ${diffH}h`
+    return t(locale, 'bot.messages.timeAgoH', { n: diffH })
   const diffD = Math.floor(diffH / 24)
-  return `il y a ${diffD}j`
+  return t(locale, 'bot.messages.timeAgoD', { n: diffD })
 }

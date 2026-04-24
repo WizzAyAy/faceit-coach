@@ -1,6 +1,6 @@
 import type { ChatInputCommandInteraction } from 'discord.js'
 import type { BotCommand } from '../types.js'
-import { analyzeLobby, faceitApi, monthsAgoTimestamp } from '@faceit-coach/core'
+import { analyzeLobby, detectLocale, faceitApi, messages, monthsAgoTimestamp, t } from '@faceit-coach/core'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
 import { errorEmbed, pickBanEmbed } from '../utils/embeds.js'
 
@@ -17,21 +17,33 @@ function analyzeOptions(months: number) {
 export default {
   data: new SlashCommandBuilder()
     .setName('analyze')
-    .setDescription('Analyse un lobby FACEIT et recommande les picks/bans')
+    .setDescription(messages.en.bot.commands.analyze.description)
+    .setDescriptionLocalizations({ fr: messages.fr.bot.commands.analyze.description })
     .addStringOption(opt =>
-      opt.setName('room_id').setDescription('ID de la room FACEIT').setRequired(true),
+      opt.setName('room_id')
+        .setDescription(messages.en.bot.commands.analyze.optRoomId)
+        .setDescriptionLocalizations({ fr: messages.fr.bot.commands.analyze.optRoomId })
+        .setRequired(true),
     )
     .addIntegerOption(opt =>
-      opt.setName('months').setDescription('Periode d\'historique (mois, defaut: 6)').setMinValue(1).setMaxValue(24),
+      opt.setName('months')
+        .setDescription(messages.en.bot.commands.analyze.optMonths)
+        .setDescriptionLocalizations({ fr: messages.fr.bot.commands.analyze.optMonths })
+        .setMinValue(1)
+        .setMaxValue(24),
     )
     .addIntegerOption(opt =>
-      opt.setName('team').setDescription('Ton équipe (1 ou 2)').addChoices(
-        { name: 'Team 1', value: 1 },
-        { name: 'Team 2', value: 2 },
-      ),
+      opt.setName('team')
+        .setDescription(messages.en.bot.commands.analyze.optTeam)
+        .setDescriptionLocalizations({ fr: messages.fr.bot.commands.analyze.optTeam })
+        .addChoices(
+          { name: 'Team 1', value: 1 },
+          { name: 'Team 2', value: 2 },
+        ),
     ) as SlashCommandBuilder,
 
   async execute(interaction: ChatInputCommandInteraction): Promise<void> {
+    const locale = detectLocale(interaction.locale)
     const roomId = interaction.options.getString('room_id', true)
     const months = interaction.options.getInteger('months') ?? DEFAULT_PERIOD_MONTHS
     const teamOption = interaction.options.getInteger('team') as 1 | 2 | null
@@ -43,17 +55,16 @@ export default {
       match = await faceitApi.getMatch(roomId)
     }
     catch {
-      await interaction.editReply({ embeds: [errorEmbed('Room introuvable, vérifie l\'ID.')] })
+      await interaction.editReply({ embeds: [errorEmbed(locale, t(locale, 'common.error.roomNotFound'))] })
       return
     }
 
     if (teamOption) {
       const result = await analyzeLobby(roomId, teamOption, analyzeOptions(months))
-      await interaction.editReply({ embeds: [pickBanEmbed(result)], components: [], content: '' })
+      await interaction.editReply({ embeds: [pickBanEmbed(locale, result)], components: [], content: '' })
       return
     }
 
-    // Ask which team via buttons
     const team1Names = match.teams.faction1.roster.map(p => p.nickname).join(', ')
     const team2Names = match.teams.faction2.roster.map(p => p.nickname).join(', ')
 
@@ -69,7 +80,7 @@ export default {
     )
 
     const reply = await interaction.editReply({
-      content: `**Team 1:** ${team1Names}\n**Team 2:** ${team2Names}\n\nDe quel côté es-tu ?`,
+      content: t(locale, 'bot.messages.whichSide', { t1: team1Names, t2: team2Names }),
       components: [row],
     })
 
@@ -83,10 +94,10 @@ export default {
       await buttonInteraction.deferUpdate()
 
       const result = await analyzeLobby(matchId, Number(side) as 1 | 2, analyzeOptions(Number(monthsStr)))
-      await interaction.editReply({ embeds: [pickBanEmbed(result)], components: [], content: '' })
+      await interaction.editReply({ embeds: [pickBanEmbed(locale, result)], components: [], content: '' })
     }
     catch {
-      await interaction.editReply({ content: 'Temps écoulé, relance la commande.', components: [] })
+      await interaction.editReply({ content: t(locale, 'common.error.timeout'), components: [] })
     }
   },
 } satisfies BotCommand
