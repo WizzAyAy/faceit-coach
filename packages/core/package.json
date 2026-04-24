@@ -1,0 +1,28 @@
+{
+  "name": "@faceit-coach/core",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FACEIT Coach core — FACEIT API client, analyzer, types (shared by bot + api)",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "node-cache": "^5.1.2",
+    "zod": "^4.3.6"
+  }
+}
