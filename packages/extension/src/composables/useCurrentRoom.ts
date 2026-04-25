@@ -1,3 +1,5 @@
+import { onMounted, ref } from 'vue'
+
 // FACEIT room ids look like `1-<uuid>` (38 chars) — match everything up to the next /, ?, or #
 const ROOM_ID_RE = /\/room\/([^/?#]+)/i
 

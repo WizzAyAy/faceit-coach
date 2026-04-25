@@ -99,7 +99,6 @@ declare global {
   const resolveComponent: typeof import('vue').resolveComponent
   const resolveRef: typeof import('@vueuse/core').resolveRef
   const setActivePinia: typeof import('pinia').setActivePinia
-  const setLocaleOverride: typeof import('./src/composables/useI18n').setLocaleOverride
   const setMapStoreSuffix: typeof import('pinia').setMapStoreSuffix
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
