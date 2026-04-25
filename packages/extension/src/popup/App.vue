@@ -59,6 +59,6 @@ onMounted(async () => {
     </nav>
 
     <PlayerTab v-if="tab === 'player'" />
-    <AnalyzeTab v-else-if="tab === 'analyze'" />
+    <AnalyzeTab v-else />
   </main>
 </template>

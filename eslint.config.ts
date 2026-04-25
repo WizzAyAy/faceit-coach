@@ -10,5 +10,6 @@ export default antfu({
     '**/.turbo/**',
     '**/auto-imports.d.ts',
     '**/components.d.ts',
+    '.vscode/**',
   ],
 })

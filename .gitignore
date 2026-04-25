@@ -6,3 +6,4 @@ dist/
 .output/
 coverage/
 *.tmp.*
+.vscode/

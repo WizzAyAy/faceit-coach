@@ -68,10 +68,7 @@ function autoSelectTeam() {
 }
 
 watch(roomId, loadMatch, { immediate: true })
-watch(manualRoomId, () => {
-  if (!roomId.value)
-    loadMatch()
-})
+watch(manualRoomId, loadMatch)
 
 async function analyze() {
   const id = effectiveRoomId()

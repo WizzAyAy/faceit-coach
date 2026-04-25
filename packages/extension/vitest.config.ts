@@ -1,8 +1,17 @@
 import vue from '@vitejs/plugin-vue'
+import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    AutoImport({
+      imports: ['vue', '@vueuse/core', 'pinia'],
+      dts: 'auto-imports.d.ts',
+      dirs: ['src/composables', 'src/stores'],
+      vueTemplate: true,
+    }),
+  ],
   test: {
     globals: true,
     environment: 'happy-dom',
@@ -17,8 +26,6 @@ export default defineConfig({
         'src/manifest.ts',
         'src/popup/main.ts',
         'src/options/main.ts',
-        'src/background/index.ts',
-        'src/content/index.ts',
       ],
       thresholds: {
         lines: 100,
