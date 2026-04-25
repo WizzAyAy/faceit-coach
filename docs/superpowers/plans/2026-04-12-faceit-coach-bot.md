@@ -1,5 +1,7 @@
 # FACEIT Coach Bot — Implementation Plan
 
+> **[ARCHIVED 2026-04-25]** Plan d'origine, entierement implemente. Conserve pour l'historique. Voir `CLAUDE.md` pour l'etat actuel.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a Discord bot that analyzes FACEIT CS2 lobbies to recommend map picks/bans, compare players, predict outcomes, and suggest strategies.

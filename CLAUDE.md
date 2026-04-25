@@ -52,7 +52,7 @@ faceit-coach/
 ### packages/core
 ```
 src/
-├── index.ts                # barrel export
+├── index.ts                # barrel export (bot + api)
 ├── types.ts                # FACEIT API types + types domaine (MapScore, PickBanResult, ...)
 ├── data/strats.ts          # strategies statiques par map
 ├── i18n/                   # SOURCE DE VERITE des traductions (bot + extension)
@@ -62,10 +62,12 @@ src/
 ├── services/
 │   ├── faceit-api.ts       # client FACEIT (init via initFaceitApi(key) au bootstrap)
 │   ├── analyzer.ts         # scoring + pick/ban
-│   └── cache.ts            # cache in-memory (node-cache)
+│   └── cache.ts            # cache in-memory (node-cache, browser-incompatible)
 ├── utils/constants.ts      # map pool, seuils, TTL, CT bias
 └── __tests__/              # vitest — analyzer, faceit-api, cache, constants, i18n
 ```
+
+`package.json` expose deux entrees: `.` (barrel complet, Node-only) et `./i18n` (browser-safe, pour l'extension). Voir section i18n plus bas.
 
 ### packages/bot
 ```
@@ -98,13 +100,14 @@ src/
 src/
 ├── manifest.ts             # MV3 typed manifest (crxjs defineManifest) — popup only, pas de bg ni content
 ├── popup/                  # Vue app — index.html, main.ts, App.vue (2 onglets: Player / Analyze)
-├── options/                # Vue app — index.html, main.ts, Options.vue (+ choix de langue)
+├── options/                # Vue app — index.html, main.ts, Options.vue
 ├── components/             # AnalyzeTab.vue, PlayerTab.vue, Logo.vue
 ├── composables/
 │   ├── useCurrentRoom.ts   # lit la tab active via chrome.tabs
-│   └── useI18n.ts          # wrapper reactif autour de core.t + detectLocale(navigator.language)
+│   └── useI18n.ts          # wrapper reactif autour de core.t (locale figee depuis navigator.language au load)
 ├── lib/api-client.ts       # ApiClient (fetch wrapper, envoie X-API-Key si configure) + types re-exportes de core
-└── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey, localePref ('auto' | Locale)
+├── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey
+└── __tests__/              # vitest — App, Options, AnalyzeTab, PlayerTab, settings store, api-client, useCurrentRoom, logo
 ```
 
 ## Responsabilites
@@ -123,12 +126,14 @@ src/
 - `detectLocale(hint)` — normalise un BCP47 / Discord locale (`"fr-FR"` → `"fr"`, fallback `"en"`).
 - `LOCALES`, `DEFAULT_LOCALE`, `messages` — exposes pour les cas ou on a besoin du dictionnaire brut (ex: descriptions de slash commands avec `setDescriptionLocalizations`).
 
+**Sous-export browser-safe :** `core/package.json` expose `"./i18n"` qui pointe sur `dist/i18n/index.js`. **L'extension importe via `@faceit-coach/core/i18n`** (jamais via le barrel racine), pour eviter de tirer `node-cache` (et son `EventEmitter` Node) cote browser. Bot et API peuvent garder l'import racine.
+
 **Bot Discord :**
 - Descriptions des slash commands : `setDescription(messages.en....)` + `setDescriptionLocalizations({ fr: messages.fr.... })` — Discord affiche la bonne selon la locale utilisateur.
 - Reponses (embeds, messages) : chaque handler lit `detectLocale(interaction.locale)` puis passe `locale` a `errorEmbed(locale, msg)`, `pickBanEmbed(locale, result)`, etc. Les helpers dans `embeds.ts` prennent la locale en premier argument.
 
 **Extension Chrome :**
-- `useI18n()` composable (dans `packages/extension/src/composables/useI18n.ts`) expose `t` + `locale` reactifs. La locale par defaut est derivee de `navigator.language`, overridable via le store `settings.localePref` (`'auto' | Locale`). Le choix est persiste dans `chrome.storage.sync` et expose dans la page Options (select "Language").
+- `useI18n()` (dans `packages/extension/src/composables/useI18n.ts`) expose `t` + `locale`. La locale est detectee une fois au chargement du popup via `detectLocale(navigator.language)` puis figee — pas de selecteur dans l'UI, pas de persistance dans `chrome.storage`. Pour changer la langue, l'utilisateur change la langue de son navigateur.
 
 **Ajouter une nouvelle traduction :**
 1. Ajouter la cle dans `en.ts` (forme canonique) — la forme est automatiquement imposee a `fr.ts` par le type.
@@ -173,7 +178,7 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 
 | Option | Type | Requis | Description |
 |--------|------|--------|-------------|
-| map | string choice | oui | Map CS2 (7 maps du pool) |
+| map | string choice | oui | Map CS2 (8 maps du pool) |
 
 ## Endpoints API
 
@@ -251,15 +256,13 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 
 ## Constantes cles (core/utils/constants.ts)
 
-**Map pool:** de_mirage, de_inferno, de_nuke, de_anubis, de_ancient, de_dust2, de_overpass
+**Map pool:** de_mirage, de_inferno, de_nuke, de_anubis, de_ancient, de_dust2, de_overpass, de_cache
 
 **Poids du score:** WINRATE 50%, KD 30%, ELO 20%
 
 **Seuils pick/ban:** PICK >= +8%, BAN <= -8%, entre = NEUTRE
 
 **Confiance:** HIGH >= 30 matchs, MEDIUM >= 15, LOW < 15
-
-**CT bias:** Nuke 57%, Overpass 53%, Anubis/Ancient 52%, Mirage/Inferno 50%, Dust2 49%
 
 **Incertitude:** seuil a 10 matchs, en dessous regression vers 50%
 

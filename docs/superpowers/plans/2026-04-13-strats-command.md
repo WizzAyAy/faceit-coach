@@ -1,5 +1,7 @@
 # /strats Command Implementation Plan
 
+> **[ARCHIVED 2026-04-25]** Plan implemente. Conserve pour l'historique. Voir `CLAUDE.md` pour l'etat actuel.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add a `/strats <map>` slash command that displays CS2 pro strategies (pistol + gun rounds) for a given map.

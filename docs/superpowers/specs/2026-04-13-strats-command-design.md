@@ -1,5 +1,7 @@
 # /strats Command — Design Spec
 
+> **[ARCHIVED 2026-04-25]** Spec livree. Conservee pour l'historique. Voir `CLAUDE.md` pour l'etat actuel.
+
 ## Summary
 
 Add a `/strats <map>` slash command that displays CS2 competitive strategies for a given map, sourced from pro team playstyles. Output is 2 Discord embeds: one for pistol rounds, one for gun rounds.

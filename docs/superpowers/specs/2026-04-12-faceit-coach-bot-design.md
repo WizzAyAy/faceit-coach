@@ -1,5 +1,7 @@
 # FACEIT Coach Bot — Design Spec
 
+> **[ARCHIVED 2026-04-25]** Spec d'origine, livree. Conservee pour l'historique. Voir `CLAUDE.md` pour l'architecture actuelle.
+
 ## Overview
 
 Bot Discord servant de coach pour CS2 sur FACEIT. Il analyse les lobbies FACEIT pour recommander les meilleurs picks/bans de maps, fournit des profils joueurs, des prédictions de victoire et des recommandations stratégiques.
