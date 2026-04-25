@@ -128,51 +128,7 @@ describe('stratsEmbeds', () => {
   })
 
   it('should fall back to raw map name when not in display names', () => {
-    const [pistol] = stratsEmbeds('en', 'de_cache', sample)
-    expect(pistol.toJSON().title).toContain('de_cache')
-  })
-})
-
-describe('pickBanEmbed side branches', () => {
-  it('should use neutral side label when map is not in CT_BIAS (fallback 0.5)', () => {
-    const result: PickBanResult = {
-      picks: [],
-      neutral: [],
-      bans: [],
-      allMaps: [{
-        map: 'de_nonexistent',
-        ourScore: 0.5,
-        theirScore: 0.5,
-        advantage: 0,
-        confidence: 'high',
-        ourTotalMatches: 0,
-        theirTotalMatches: 0,
-        ourBreakdown: { winrate: 0.5, kd: 1, elo: 2000 },
-        theirBreakdown: { winrate: 0.5, kd: 1, elo: 2000 },
-      }],
-    }
-    const embed = pickBanEmbed('fr', result)
-    expect(embed.toJSON().description).toContain('⚖️')
-  })
-
-  it('should use T label for T-sided maps (bias < 0.5)', () => {
-    const result: PickBanResult = {
-      picks: [],
-      neutral: [],
-      bans: [],
-      allMaps: [{
-        map: 'de_dust2', // bias = 0.49
-        ourScore: 0.5,
-        theirScore: 0.5,
-        advantage: 0,
-        confidence: 'high',
-        ourTotalMatches: 0,
-        theirTotalMatches: 0,
-        ourBreakdown: { winrate: 0.5, kd: 1, elo: 2000 },
-        theirBreakdown: { winrate: 0.5, kd: 1, elo: 2000 },
-      }],
-    }
-    const embed = pickBanEmbed('fr', result)
-    expect(embed.toJSON().description).toContain('💣')
+    const [pistol] = stratsEmbeds('en', 'de_train', sample)
+    expect(pistol.toJSON().title).toContain('de_train')
   })
 })

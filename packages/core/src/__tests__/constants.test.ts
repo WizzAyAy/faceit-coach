@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { CACHE_TTL, CS2_MAP_POOL, DEFAULT_MATCH_COUNT, isInMapPool, MAP_CT_BIAS, MAP_DISPLAY_NAMES, normalizeMapName, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
+import { CACHE_TTL, CS2_MAP_POOL, isInMapPool, MAP_DISPLAY_NAMES, normalizeMapName, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
 
 describe('constants', () => {
-  it('should have 7 maps in the pool', () => {
-    expect(CS2_MAP_POOL).toHaveLength(7)
+  it('should have 8 maps in the pool', () => {
+    expect(CS2_MAP_POOL).toHaveLength(8)
   })
 
   it('should have display names for all maps', () => {
@@ -13,22 +13,13 @@ describe('constants', () => {
     }
   })
 
-  it('should have CT bias for all maps', () => {
-    for (const map of CS2_MAP_POOL) {
-      expect(MAP_CT_BIAS[map]).toBeDefined()
-      expect(MAP_CT_BIAS[map]).toBeGreaterThan(0)
-      expect(MAP_CT_BIAS[map]).toBeLessThan(1)
-    }
-  })
-
   it('should have reasonable cache TTLs', () => {
     expect(CACHE_TTL.PLAYER_STATS).toBeGreaterThan(0)
     expect(CACHE_TTL.MATCH_DETAILS).toBeGreaterThan(0)
     expect(CACHE_TTL.MATCH_HISTORY).toBeGreaterThan(0)
   })
 
-  it('should have reasonable defaults', () => {
-    expect(DEFAULT_MATCH_COUNT).toBe(50)
+  it('should have a reasonable uncertainty threshold', () => {
     expect(UNCERTAINTY_THRESHOLD).toBe(10)
   })
 
@@ -42,7 +33,7 @@ describe('constants', () => {
     })
 
     it('should reject unknown labels', () => {
-      expect(isInMapPool('de_cache')).toBe(false)
+      expect(isInMapPool('de_train')).toBe(false)
       expect(isInMapPool('Random')).toBe(false)
     })
   })
@@ -58,7 +49,7 @@ describe('constants', () => {
     })
 
     it('should pass through unknown labels unchanged', () => {
-      expect(normalizeMapName('de_cache')).toBe('de_cache')
+      expect(normalizeMapName('de_train')).toBe('de_train')
     })
   })
 })

@@ -238,4 +238,38 @@ export const MAP_STRATS: Record<string, MapStrats> = {
       ].join('\n'),
     },
   },
+
+  de_cache: {
+    pistol: {
+      ct: [
+        '**Setup 2-1-2** — USP Squeaky/Forklift A (angle long imbattable), 1 mid (Sun Room/Highway), 2 B (Site/Checkers/Headshot).',
+        '**Utility :** smoke mid (coupe T spawn → A long), flash A main si push, molotov Vent B au call',
+        '**Cle :** A long est tres long → USP devastateur, ne jamais avancer Squeaky',
+      ].join('\n'),
+      t: [
+        '**Rush B (le + fiable)** — 4 B main, 1 mid/lurk. Pop-flash par-dessus le mur B, smoke Checkers depuis T spawn. Distances courtes, Glocks dominent.',
+        '**A long fast** — 4 A long, 1 mid. Smoke mid CT cross + flash Squeaky. Sprint long, contest Forklift. Risque : duels longs au pistol.',
+      ].join('\n'),
+    },
+    gun: {
+      ct: [
+        '**Default + AWP A long** — AWP Forklift/Squeaky (angle dominant), 1 mid Sun, 1 Highway, 2 B (Site/Headshot). Molotov Vent + smoke mid.',
+        '**Aggressive mid (Astralis era)** — 2 push mid avec smoke Z + flash. Cut le split T mid→B, info A long. Repli vers sites au contact.',
+        '**Stack B** — 3 B (Site/Checkers/Headshot), 2 A (AWP long + Squeaky). Vent ferme par molotov, retake A par Heaven/Z.',
+      ].join('\n'),
+      t: [
+        '**Full B (NIP/G2)** — Smokes Headshot + Checkers + CT cross, molotov Toxic, 2 pop-flashs Vent. Entry Vent + B main simultane. 1 lurk garage.',
+        '**A execute long** — 3 long, 2 Z/Sun Room. Smokes Squeaky + Forklift + CT cross, molotov default. Flash long + Z. Entry long + Z split.',
+        '**Mid to B split (NaVi)** — 3 mid (prennent Z et Sun), 2 B main. Smoke Headshot + flash garage. Split B main + Z-to-B simultane.',
+      ].join('\n'),
+      antiEco: [
+        '**CT :** AWP Forklift tient long seul. MAG-7 mid/Vent. Push Highway pour pick depuis Sun.',
+        '**T :** Rush B avec MAC-10 + 2 flashs Vent. Site compact, Glock-friendly.',
+      ].join('\n'),
+      forceBuy: [
+        '**CT :** Famas + Scout long A (angle long le rend letal). Vent ferme par molotov.',
+        '**T :** Galils + smoke CT cross + flash Vent. Execute B minimaliste, distances favorisent Galils.',
+      ].join('\n'),
+    },
+  },
 }

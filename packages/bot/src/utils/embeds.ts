@@ -1,7 +1,6 @@
 import type { Locale, MapScore, MapStrats, PickBanResult } from '@faceit-coach/core'
 import {
   BAN_THRESHOLD,
-  MAP_CT_BIAS,
   MAP_DISPLAY_NAMES,
   PICK_THRESHOLD,
   t,
@@ -32,15 +31,6 @@ function confidenceIcon(confidence: MapScore['confidence']): string {
   return '⚠️'
 }
 
-function sideLabel(locale: Locale, map: string): string {
-  const ctBias = MAP_CT_BIAS[map] ?? 0.5
-  if (ctBias > 0.5)
-    return t(locale, 'bot.embeds.sideCT')
-  if (ctBias < 0.5)
-    return t(locale, 'bot.embeds.sideT')
-  return t(locale, 'bot.embeds.sideNeutral')
-}
-
 function breakdownLine(m: MapScore): string {
   return `> WR ${pct(m.ourBreakdown.winrate)}/${pct(m.theirBreakdown.winrate)} · K/D ${m.ourBreakdown.kd.toFixed(2)}/${m.theirBreakdown.kd.toFixed(2)} · ELO ${Math.round(m.ourBreakdown.elo)}/${Math.round(m.theirBreakdown.elo)}`
 }
@@ -55,7 +45,6 @@ export function pickBanEmbed(locale: Locale, result: PickBanResult): EmbedBuilde
       conf: confidenceIcon(m.confidence),
       us: pct(m.ourScore),
       them: pct(m.theirScore),
-      side: sideLabel(locale, m.map),
       usMatches: m.ourTotalMatches,
       themMatches: m.theirTotalMatches,
     })

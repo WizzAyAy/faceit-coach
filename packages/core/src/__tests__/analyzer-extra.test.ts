@@ -81,14 +81,14 @@ describe('analyzer extra branches', () => {
       })
       mockGetPlayerGameStats.mockResolvedValueOnce([
         { map: 'de_mirage', result: '1', kd_ratio: '1.5', headshots_percentage: '50' } as any,
-        { map: 'de_cache', result: '1', kd_ratio: '1.5', headshots_percentage: '50' } as any, // out of pool
+        { map: 'de_train', result: '1', kd_ratio: '1.5', headshots_percentage: '50' } as any, // out of pool
         { result: '1' } as any, // no map field at all
       ])
       const result = await analyzeTeam(['p1'])
       const mirage = result[0].mapStats.find(m => m.map === 'de_mirage')
       expect(mirage).toBeDefined()
       expect(mirage!.matches).toBe(1)
-      expect(result[0].mapStats.find(m => m.map === 'de_cache')).toBeUndefined()
+      expect(result[0].mapStats.find(m => m.map === 'de_train')).toBeUndefined()
     })
 
     it('should count a loss (result !== 1)', async () => {

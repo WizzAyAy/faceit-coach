@@ -20,7 +20,7 @@ describe('/strats command', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('should reply with error embed for unknown map', async () => {
-    const interaction = makeInteraction({ stringOpts: { map: 'de_cache' } })
+    const interaction = makeInteraction({ stringOpts: { map: 'de_train' } })
     await strats.execute(interaction)
     expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({
       embeds: expect.any(Array),

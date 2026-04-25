@@ -26,7 +26,7 @@ describe('gET /strats', () => {
   })
 
   it('should return 404 for an unknown map', async () => {
-    const res = await stratsRoute.request('/de_cache')
+    const res = await stratsRoute.request('/de_train')
     expect(res.status).toBe(404)
   })
 })
