@@ -304,3 +304,13 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 - API expose un `HEALTHCHECK` sur `/health` (30s interval, 3 retries).
 - Limites ressources : bot 256M / 0.25 cpu, api 512M / 0.5 cpu. Logging JSON avec rotation (10M max, 3 fichiers).
 - Le bot installe un handler SIGTERM/SIGINT pour `client.destroy()` (shutdown propre sur redeploy).
+
+## Releases & deploiement
+
+Source de verite : tags git `vX.Y.Z`. Voir `RELEASE.md` pour le detail.
+
+- `.github/workflows/release.yml` se declenche sur `git push --tags`.
+- Job `build-extension` : sync `manifest.version` avec le tag, build + zip de `dist/`, attache a une release GitHub avec changelog auto.
+- Job `deploy-server` : SSH vers le serveur prod (secrets `DEPLOY_HOST`/`DEPLOY_USER`/`DEPLOY_SSH_KEY`/`DEPLOY_PATH`), checkout du tag, `docker compose up -d --build` (rebuild bot + api).
+- Extension ID stable : `khpfppjaichdmbcoihjihfahooklnblc` (derive de la cle publique RSA dans `manifest.key`). Identique chez tous les friends — un seul origin a whitelister cote `API_CORS_ORIGINS`.
+- Cle privee correspondante stockee hors-repo (`~/.config/faceit-coach/extension-private.pem`). `.gitignore` exclut `*.pem` et `*-extension.key`.

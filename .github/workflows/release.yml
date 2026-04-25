@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync manifest version with tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          node -e "
+            const fs = require('fs');
+            const path = 'packages/extension/src/manifest.ts';
+            const src = fs.readFileSync(path, 'utf8');
+            const next = src.replace(/version: '[^']+'/, \"version: '\" + process.argv[1] + \"'\");
+            fs.writeFileSync(path, next);
+          " "$VERSION"
+
+      - name: Build extension
+        run: pnpm --filter @faceit-coach/extension build
+
+      - name: Zip dist
+        run: |
+          cd packages/extension/dist
+          zip -r "../../../faceit-coach-${GITHUB_REF_NAME}.zip" .
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: faceit-coach-*.zip
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            1. Download `faceit-coach-${{ github.ref_name }}.zip` ci-dessous et extraire.
+            2. Ouvrir `chrome://extensions`, activer **Developer mode** (toggle haut-droit).
+            3. **Load unpacked** → selectionner le dossier extrait.
+            4. Clic droit sur l'icone de l'extension → **Options**, renseigner `API Base URL` + `Cle API`.
+
+            Voir [RELEASE.md](https://github.com/${{ github.repository }}/blob/main/RELEASE.md) pour plus de details.
+
+  deploy-server:
+    needs: build-extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy bot + api via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            git fetch --tags --prune
+            git checkout ${{ github.ref_name }}
+            docker compose pull || true
+            docker compose up -d --build
+            docker compose ps
