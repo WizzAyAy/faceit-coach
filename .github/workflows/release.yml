@@ -71,7 +71,7 @@ jobs:
             3. (Pour installation persistante : signer le .xpi via AMO ou utiliser Firefox Developer Edition / ESR avec `xpinstall.signatures.required = false`.)
             4. Clic droit sur l'icone → **Manage Extension** → **Options**, renseigner `API Base URL` + `Cle API`.
 
-            Voir [RELEASE.md](https://github.com/${{ github.repository }}/blob/main/RELEASE.md) pour plus de details.
+            Voir [docs/RELEASE.md](https://github.com/${{ github.repository }}/blob/main/docs/RELEASE.md) pour plus de details.
 
   deploy-server:
     needs: build-extension

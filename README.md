@@ -28,7 +28,7 @@ Tout est en TypeScript strict, organise en monorepo pnpm + Turborepo.
 | Monorepo | pnpm workspaces + Turborepo |
 | Bot | discord.js 14 |
 | API | Hono + @hono/node-server + Zod + Pino + hono-rate-limiter |
-| Extension | Vue 3 + Pinia + VueUse + UnoCSS + @crxjs/vite-plugin (MV3) |
+| Extension | Vue 3 + Pinia + VueUse + UnoCSS + WXT (cross-browser MV3, Chrome + Firefox) |
 | Tests | Vitest |
 | Lint | ESLint preset @antfu/eslint-config (+ vue + unocss) |
 
@@ -40,7 +40,7 @@ faceit-coach/
 │   ├── core/         # @faceit-coach/core — logique FACEIT partagee (zero dep Discord/HTTP)
 │   ├── bot/          # @faceit-coach/bot — Discord, importe core directement
 │   ├── api/          # @faceit-coach/api — HTTP (Hono), client de core
-│   └── extension/    # @faceit-coach/extension — Chrome MV3, client de l'API
+│   └── extension/    # @faceit-coach/extension — Cross-browser MV3 (Chrome + Firefox), client de l'API
 ├── docker-compose.yml
 ├── turbo.json
 └── pnpm-workspace.yaml
@@ -76,9 +76,20 @@ Responsabilites :
 
 Securite sur toutes les routes sauf `/health` : auth `X-API-Key` (quand `API_KEY` configure), rate limit 60 req/min/IP, headers securises, CORS whitelist stricte.
 
+## Documentation
+
+Toutes les docs sont dans [`docs/`](./docs/) :
+
+- **[`docs/INSTALLATION.md`](./docs/INSTALLATION.md)** — installation locale (dev), credentials, lancer bot/api/extension.
+- **[`docs/HOSTING.md`](./docs/HOSTING.md)** — self-host le backend (Raspberry Pi ou tout serveur Linux + Docker), exposer l'API, monitoring.
+- **[`docs/RELEASE.md`](./docs/RELEASE.md)** — flow tag-based (CI build extension + deploy auto serveur, secrets GitHub).
+- **[`docs/PUBLISHING.md`](./docs/PUBLISHING.md)** — publier l'extension sur Chrome Web Store (Unlisted) et Firefox AMO (self-distribution).
+
+Source de verite technique (architecture, conventions, securite) : [`CLAUDE.md`](./CLAUDE.md).
+
 ## Installation
 
-Guide complet : **[INSTALLATION.md](./INSTALLATION.md)**.
+Guide complet : **[`docs/INSTALLATION.md`](./docs/INSTALLATION.md)**.
 
 En version courte :
 

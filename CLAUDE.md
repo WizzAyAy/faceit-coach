@@ -324,7 +324,7 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 
 ## Releases & deploiement
 
-Source de verite : tags git `vX.Y.Z`. Voir `RELEASE.md` pour le detail.
+Source de verite : tags git `vX.Y.Z`. Voir [`docs/RELEASE.md`](./docs/RELEASE.md) pour le detail. Pour publier l'extension sur les stores : [`docs/PUBLISHING.md`](./docs/PUBLISHING.md). Pour self-host le backend : [`docs/HOSTING.md`](./docs/HOSTING.md).
 
 - `.github/workflows/release.yml` se declenche sur `git push --tags`.
 - Job `build-extension` : sync `version` dans `packages/extension/package.json` avec le tag, puis `wxt zip` (Chrome MV3) et `wxt zip -b firefox` (Firefox MV3). Les deux zips (`faceit-coach-vX.Y.Z-chrome.zip`, `faceit-coach-vX.Y.Z-firefox.zip`) sont attaches a une release GitHub avec changelog auto.

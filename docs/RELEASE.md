@@ -12,6 +12,15 @@ Quand un tag `vX.Y.Z` est pousse, GitHub Actions execute `.github/workflows/rele
 
 Une seule source de verite : le tag.
 
+## Tags pre-release (test)
+
+Les tags qui contiennent un `-` (ex: `v1.1.0-beta.1`, `v1.1.0-rc.1`) sont traites differemment :
+
+- La GitHub release est marquee **prerelease** (badge "Pre-release").
+- Le job `deploy-server` est **skip** — utile pour tester juste le build extension sans toucher la prod.
+
+Concretement : `v1.1.0-beta.1` produit les zips Chrome + Firefox, mais ne SSH pas vers ton serveur. Quand t'es satisfait, tag `v1.1.0` propre → deploiement complet.
+
 ## Publier une nouvelle version
 
 ```bash
@@ -19,7 +28,7 @@ git tag -a v1.0.1 -m "fix: ..."
 git push --tags
 ```
 
-GitHub Actions s'occupe du reste. Suivre le run avec `gh run watch`.
+GitHub Actions s'occupe du reste. Suivre le run avec `gh run watch <run-id>` ou `gh run list --workflow Release`.
 
 **Bumping semver :**
 - `vX.Y.Z+1` → patch (fix, doc)
