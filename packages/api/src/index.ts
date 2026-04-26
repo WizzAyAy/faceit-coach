@@ -5,6 +5,7 @@ import { Hono } from 'hono'
 import { rateLimiter } from 'hono-rate-limiter'
 import { cors } from 'hono/cors'
 import { config } from './config.js'
+import { matchOrigin } from './cors.js'
 import { logger } from './logger.js'
 import { analyzeRoute } from './routes/analyze.js'
 import { liveRoute } from './routes/live.js'
@@ -37,7 +38,7 @@ app.use('*', async (c, next) => {
 })
 
 app.use('*', cors({
-  origin: config.corsOrigins.includes('*') ? '*' : config.corsOrigins,
+  origin: origin => matchOrigin(origin, config.corsOrigins),
   allowMethods: ['GET', 'POST', 'OPTIONS'],
 }))
 

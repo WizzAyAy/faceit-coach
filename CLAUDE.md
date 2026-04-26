@@ -204,7 +204,7 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 **Securite (toutes routes sauf `/health`) :**
 - **Auth :** header `X-API-Key` requis si `API_KEY` est defini cote serveur. En prod (`NODE_ENV=production`), `API_KEY` est obligatoire au boot, sinon l'API refuse de demarrer. En dev sans `API_KEY`, l'API tourne ouverte (warning log).
 - **Rate limit :** 60 req/min/IP par defaut (`API_RATE_LIMIT_PER_MINUTE`), cle via `X-Forwarded-For` → `X-Real-IP` → `anonymous`.
-- **CORS :** `API_CORS_ORIGINS` csv, par defaut vide (liste blanche stricte). Un warning est log si vide ou `*` en prod.
+- **CORS :** `API_CORS_ORIGINS` csv, par defaut vide (liste blanche stricte). Un warning est log si vide ou `*` en prod. Chaque entree peut etre `*` (allow all), un origin exact (`chrome-extension://<ID>`), ou un wildcard de protocole (`moz-extension://*`) — necessaire pour Firefox vu que chaque install genere un UUID local. La logique est dans `packages/api/src/cors.ts` (`matchOrigin`).
 - **Headers :** `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `X-DNS-Prefetch-Control: off`. `Strict-Transport-Security` uniquement en prod.
 - **Graceful shutdown :** SIGTERM/SIGINT → `server.close()` + exit forcé apres 10s.
 
@@ -308,7 +308,7 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 - `FACEIT_API_KEY` — cle FACEIT Open Data (bot + api)
 - `API_PORT` — port d'ecoute de l'api (defaut 8787)
 - `API_KEY` — cle attendue dans `X-API-Key`. Facultatif en dev (warning). **Obligatoire en prod** (refuse de demarrer si absent). Generer via `openssl rand -hex 32`.
-- `API_CORS_ORIGINS` — origins autorises, csv, vide par defaut (liste blanche stricte). `*` deconseille en prod.
+- `API_CORS_ORIGINS` — origins autorises, csv, vide par defaut (liste blanche stricte). `*` deconseille en prod. Supporte `*` (allow all), match exact, ou wildcard de protocole (`moz-extension://*`).
 - `API_RATE_LIMIT_PER_MINUTE` — limite par IP (defaut 60)
 - `LOG_LEVEL` — niveau pino (defaut `info`)
 - `NODE_ENV` — `production` active HSTS, la validation stricte d'`API_KEY`, et les warnings CORS
