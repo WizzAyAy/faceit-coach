@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { browser } from 'wxt/browser'
 
 export const useSettingsStore = defineStore('settings', () => {
   const apiBaseUrl = ref<string>('http://localhost:8787')
@@ -7,7 +8,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const apiKey = ref<string>('')
 
   async function load(): Promise<void> {
-    const stored = await chrome.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey'])
+    const stored = await browser.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey'])
     if (typeof stored.apiBaseUrl === 'string')
       apiBaseUrl.value = stored.apiBaseUrl
     if (typeof stored.defaultPseudo === 'string')
@@ -27,7 +28,7 @@ export const useSettingsStore = defineStore('settings', () => {
       defaultPseudo.value = patch.defaultPseudo
     if (patch.apiKey !== undefined)
       apiKey.value = patch.apiKey
-    await chrome.storage.sync.set({
+    await browser.storage.sync.set({
       apiBaseUrl: apiBaseUrl.value,
       defaultPseudo: defaultPseudo.value,
       apiKey: apiKey.value,

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import Logo from '../components/Logo.vue'
-import { useI18n } from '../composables/useI18n.js'
-import { useSettingsStore } from '../stores/settings.js'
+import Logo from '../../components/Logo.vue'
+import { useI18n } from '../../composables/useI18n.js'
+import { useSettingsStore } from '../../stores/settings.js'
 
 const settings = useSettingsStore()
 const { t } = useI18n()

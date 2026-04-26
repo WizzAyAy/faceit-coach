@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { browser } from 'wxt/browser'
 import { locale } from '../composables/useI18n.js'
 
 beforeAll(() => {
@@ -8,7 +9,7 @@ beforeAll(() => {
 })
 
 declare const __resetChrome: () => void
-const Options = (await import('../options/Options.vue')).default
+const Options = (await import('../entrypoints/options/Options.vue')).default
 
 describe('options', () => {
   beforeEach(() => {
@@ -16,8 +17,8 @@ describe('options', () => {
     setActivePinia(createPinia())
   })
 
-  it('should hydrate fields from chrome.storage.sync on mount', async () => {
-    await chrome.storage.sync.set({
+  it('should hydrate fields from browser.storage.sync on mount', async () => {
+    await browser.storage.sync.set({
       apiBaseUrl: 'https://api',
       defaultPseudo: 'Me',
       apiKey: 'k',
@@ -45,7 +46,7 @@ describe('options', () => {
     await flushPromises()
     expect(wrapper.text()).not.toContain('Enregistré')
     vi.useRealTimers()
-    const stored = await chrome.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey'])
+    const stored = await browser.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey'])
     expect(stored.apiBaseUrl).toBe('https://api.new')
     expect(stored.defaultPseudo).toBe('me')
     expect(stored.apiKey).toBe('key')

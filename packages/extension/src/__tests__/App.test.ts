@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { browser } from 'wxt/browser'
 import { locale } from '../composables/useI18n.js'
 
 beforeAll(() => {
@@ -16,7 +17,7 @@ vi.mock('../lib/api-client.js', () => ({
 }))
 
 declare const __resetChrome: () => void
-const App = (await import('../popup/App.vue')).default
+const App = (await import('../entrypoints/popup/App.vue')).default
 
 describe('popup App', () => {
   beforeEach(() => {
@@ -25,7 +26,7 @@ describe('popup App', () => {
   })
 
   it('should default to the Player tab when no room is detected', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValue([])
+    ;(browser.tabs.query as any).mockResolvedValue([])
     const wrapper = mount(App)
     await flushPromises()
     // PlayerTab has a "Go" button
@@ -33,7 +34,7 @@ describe('popup App', () => {
   })
 
   it('should auto-switch to Analyze when a room is detected', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValue([{ url: 'https://faceit.com/room/r1' }])
+    ;(browser.tabs.query as any).mockResolvedValue([{ url: 'https://faceit.com/room/r1' }])
     const wrapper = mount(App)
     await flushPromises()
     // AnalyzeTab renders the detected room marker
@@ -41,7 +42,7 @@ describe('popup App', () => {
   })
 
   it('should switch tabs on click', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValue([])
+    ;(browser.tabs.query as any).mockResolvedValue([])
     const wrapper = mount(App)
     await flushPromises()
     const [playerBtn, analyzeBtn] = wrapper.findAll('nav button')

@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { browser } from 'wxt/browser'
 import { useSettingsStore } from '../stores/settings.js'
 
 declare const __resetChrome: () => void
@@ -17,8 +18,8 @@ describe('settings store', () => {
     expect(store.apiKey).toBe('')
   })
 
-  it('should load stored values from chrome.storage.sync', async () => {
-    await chrome.storage.sync.set({
+  it('should load stored values from browser.storage.sync', async () => {
+    await browser.storage.sync.set({
       apiBaseUrl: 'https://api.example',
       defaultPseudo: 'foo',
       apiKey: 'k',
@@ -31,7 +32,7 @@ describe('settings store', () => {
   })
 
   it('should ignore non-string stored values', async () => {
-    await chrome.storage.sync.set({ apiBaseUrl: 42, defaultPseudo: null, apiKey: true })
+    await browser.storage.sync.set({ apiBaseUrl: 42, defaultPseudo: null, apiKey: true })
     const store = useSettingsStore()
     await store.load()
     expect(store.apiBaseUrl).toBe('http://localhost:8787')

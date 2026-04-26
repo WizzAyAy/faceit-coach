@@ -4,6 +4,7 @@ dist/
 .turbo/
 *.tsbuildinfo
 .output/
+.wxt/
 coverage/
 *.tmp.*
 .vscode/

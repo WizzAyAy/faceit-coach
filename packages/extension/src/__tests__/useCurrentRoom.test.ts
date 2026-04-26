@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
+import { browser } from 'wxt/browser'
 import { useCurrentRoom } from '../composables/useCurrentRoom.js'
 
 declare const __resetChrome: () => void
@@ -28,7 +29,7 @@ describe('useCurrentRoom', () => {
   beforeEach(() => __resetChrome())
 
   it('should extract the room id from a faceit room URL', async () => {
-    (chrome.tabs.query as any).mockResolvedValue([{ url: 'https://www.faceit.com/fr/cs2/room/1-abc' }])
+    (browser.tabs.query as any).mockResolvedValue([{ url: 'https://www.faceit.com/fr/cs2/room/1-abc' }])
     const { roomId, tabUrl, refresh } = mountWithRoom()
     await refresh()
     expect(roomId.value).toBe('1-abc')
@@ -36,14 +37,14 @@ describe('useCurrentRoom', () => {
   })
 
   it('should be null when no room in URL', async () => {
-    (chrome.tabs.query as any).mockResolvedValue([{ url: 'https://www.faceit.com/home' }])
+    (browser.tabs.query as any).mockResolvedValue([{ url: 'https://www.faceit.com/home' }])
     const { roomId, refresh } = mountWithRoom()
     await refresh()
     expect(roomId.value).toBeNull()
   })
 
   it('should be null when there is no active tab', async () => {
-    (chrome.tabs.query as any).mockResolvedValue([])
+    (browser.tabs.query as any).mockResolvedValue([])
     const { roomId, tabUrl, refresh } = mountWithRoom()
     await refresh()
     expect(roomId.value).toBeNull()
@@ -51,7 +52,7 @@ describe('useCurrentRoom', () => {
   })
 
   it('should be null when the tab has no URL', async () => {
-    (chrome.tabs.query as any).mockResolvedValue([{}])
+    (browser.tabs.query as any).mockResolvedValue([{}])
     const { tabUrl, refresh } = mountWithRoom()
     await refresh()
     expect(tabUrl.value).toBeNull()

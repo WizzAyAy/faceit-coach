@@ -10,9 +10,15 @@
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["chrome", "vite/client", "unplugin-vue-components/types", "unplugin-auto-import/types"],
+    "types": ["unplugin-vue-components/types"],
     "outDir": "dist"
   },
-  "include": ["src/**/*", "src/**/*.vue", "auto-imports.d.ts", "components.d.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "src/**/*.vue",
+    "components.d.ts",
+    ".wxt/wxt.d.ts",
+    ".wxt/types/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", "dist", ".turbo", ".output"]
 }

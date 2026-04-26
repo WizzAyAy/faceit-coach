@@ -1,16 +1,18 @@
 import vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
+import UnoCSS from 'unocss/vite'
+import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vitest/config'
+import { WxtVitest } from 'wxt/testing'
 
 export default defineConfig({
   plugins: [
     vue(),
-    AutoImport({
-      imports: ['vue', '@vueuse/core', 'pinia'],
-      dts: 'auto-imports.d.ts',
-      dirs: ['src/composables', 'src/stores'],
-      vueTemplate: true,
+    UnoCSS(),
+    Components({
+      dirs: ['src/components'],
+      dts: 'components.d.ts',
     }),
+    WxtVitest(),
   ],
   test: {
     globals: true,
@@ -23,9 +25,8 @@ export default defineConfig({
       include: ['src/**/*.{ts,vue}'],
       exclude: [
         'src/__tests__/**',
-        'src/manifest.ts',
-        'src/popup/main.ts',
-        'src/options/main.ts',
+        'src/entrypoints/popup/main.ts',
+        'src/entrypoints/options/main.ts',
       ],
       thresholds: {
         lines: 100,

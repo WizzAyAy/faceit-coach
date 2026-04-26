@@ -23,37 +23,49 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Sync manifest version with tag
+      - name: Sync extension version with tag
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           node -e "
             const fs = require('fs');
-            const path = 'packages/extension/src/manifest.ts';
-            const src = fs.readFileSync(path, 'utf8');
-            const next = src.replace(/version: '[^']+'/, \"version: '\" + process.argv[1] + \"'\");
-            fs.writeFileSync(path, next);
+            const path = 'packages/extension/package.json';
+            const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+            pkg.version = process.argv[1];
+            fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
           " "$VERSION"
 
-      - name: Build extension
-        run: pnpm --filter @faceit-coach/extension build
+      - name: Zip Chrome (MV3)
+        run: pnpm --filter @faceit-coach/extension zip
 
-      - name: Zip dist
+      - name: Zip Firefox (MV3)
+        run: pnpm --filter @faceit-coach/extension zip:firefox
+
+      - name: Stage release artifacts
         run: |
-          cd packages/extension/dist
-          zip -r "../../../faceit-coach-${GITHUB_REF_NAME}.zip" .
+          mkdir -p release-artifacts
+          cp packages/extension/.output/faceit-coach-*-chrome.zip "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-chrome.zip"
+          cp packages/extension/.output/faceit-coach-*-firefox.zip "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-firefox.zip"
+          ls -la release-artifacts/
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: faceit-coach-*.zip
+          files: release-artifacts/faceit-coach-*.zip
           generate_release_notes: true
           body: |
             ## Installation
 
-            1. Download `faceit-coach-${{ github.ref_name }}.zip` ci-dessous et extraire.
+            ### Chrome / Edge / Brave / Opera / Vivaldi
+            1. Telecharger `faceit-coach-${{ github.ref_name }}-chrome.zip` ci-dessous et extraire.
             2. Ouvrir `chrome://extensions`, activer **Developer mode** (toggle haut-droit).
             3. **Load unpacked** → selectionner le dossier extrait.
             4. Clic droit sur l'icone de l'extension → **Options**, renseigner `API Base URL` + `Cle API`.
+
+            ### Firefox
+            1. Telecharger `faceit-coach-${{ github.ref_name }}-firefox.zip` ci-dessous.
+            2. Ouvrir `about:debugging#/runtime/this-firefox` → **Load Temporary Add-on...** → selectionner le `.zip`.
+            3. (Pour installation persistante : signer le .xpi via AMO ou utiliser Firefox Developer Edition / ESR avec `xpinstall.signatures.required = false`.)
+            4. Clic droit sur l'icone → **Manage Extension** → **Options**, renseigner `API Base URL` + `Cle API`.
 
             Voir [RELEASE.md](https://github.com/${{ github.repository }}/blob/main/RELEASE.md) pour plus de details.
 

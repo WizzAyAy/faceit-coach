@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { browser } from 'wxt/browser'
 import { locale } from '../composables/useI18n.js'
 
 beforeAll(() => {
@@ -26,7 +27,7 @@ describe('playerTab', () => {
   })
 
   it('should prefill pseudo from settings on mount', async () => {
-    await chrome.storage.sync.set({ defaultPseudo: 'Default' })
+    await browser.storage.sync.set({ defaultPseudo: 'Default' })
     const settings = useSettingsStore()
     await settings.load()
     const wrapper = mount(PlayerTab)

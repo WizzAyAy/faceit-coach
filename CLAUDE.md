@@ -12,7 +12,7 @@
 - **Monorepo:** pnpm workspaces + Turborepo
 - **Bot:** discord.js 14
 - **API:** Hono + @hono/node-server + @hono/zod-validator + Zod + Pino
-- **Extension:** Chrome MV3 via Vite + @crxjs/vite-plugin + Vue 3 + Pinia + VueUse + UnoCSS + unplugin-auto-import/components
+- **Extension:** Cross-browser MV3 (Chrome + Firefox) via [WXT](https://wxt.dev) + @wxt-dev/module-vue + Vue 3 + Pinia + VueUse + UnoCSS + unplugin-vue-components. Auto-imports geres par WXT (unimport).
 - **Tests:** Vitest (globals: true)
 - **Lint:** ESLint preset @antfu/eslint-config (+ vue + unocss)
 - **Build:** `tsc` avec project references (composite/incremental)
@@ -30,7 +30,11 @@
 | Lint | `pnpm lint` / `pnpm lint:fix` |
 | Dev bot | `pnpm dev:bot` |
 | Dev api | `pnpm dev:api` |
-| Dev extension | `pnpm dev:extension` |
+| Dev extension (Chrome) | `pnpm dev:extension` |
+| Dev extension (Firefox) | `pnpm --filter @faceit-coach/extension dev:firefox` |
+| Build extension Chrome | `pnpm --filter @faceit-coach/extension build` |
+| Build extension Firefox | `pnpm --filter @faceit-coach/extension build:firefox` |
+| Zip Chrome + Firefox | `pnpm --filter @faceit-coach/extension zip:all` |
 
 ## Architecture
 
@@ -46,7 +50,7 @@ faceit-coach/
     ├── core/               # @faceit-coach/core — cerveau partage, zero dep Discord/HTTP
     ├── bot/                # @faceit-coach/bot — Discord, importe core directement
     ├── api/                # @faceit-coach/api — HTTP (Hono), client de core, consomme par extension
-    └── extension/          # @faceit-coach/extension — Chrome MV3, client de l'API
+    └── extension/          # @faceit-coach/extension — Cross-browser MV3 (Chrome + Firefox), client de l'API
 ```
 
 ### packages/core
@@ -97,22 +101,27 @@ src/
 
 ### packages/extension
 ```
+wxt.config.ts               # config WXT — manifest, modules (module-vue), vite plugins (UnoCSS, Components), hook build:manifestGenerated pour key (Chrome) et browser_specific_settings.gecko (Firefox)
+public/                     # icones (icon-16/32/48/128.png) — auto-detectees par WXT comme manifest.icons + action.default_icon
 src/
-├── manifest.ts             # MV3 typed manifest (crxjs defineManifest) — popup only, pas de bg ni content
-├── popup/                  # Vue app — index.html, main.ts, App.vue (2 onglets: Player / Analyze)
-├── options/                # Vue app — index.html, main.ts, Options.vue
-├── components/             # AnalyzeTab.vue, PlayerTab.vue, Logo.vue
+├── entrypoints/            # discovery WXT — chaque sous-dossier devient une page de l'extension
+│   ├── popup/              # Vue app — index.html, main.ts, App.vue (2 onglets: Player / Analyze)
+│   └── options/            # Vue app — index.html (avec <meta name="manifest.open_in_tab" content="false"/>), main.ts, Options.vue
+├── components/             # AnalyzeTab.vue, PlayerTab.vue, Logo.vue (auto-importes via unplugin-vue-components)
 ├── composables/
-│   ├── useCurrentRoom.ts   # lit la tab active via chrome.tabs
+│   ├── useCurrentRoom.ts   # lit la tab active via browser.tabs (import { browser } from 'wxt/browser')
 │   └── useI18n.ts          # wrapper reactif autour de core.t (locale figee depuis navigator.language au load)
 ├── lib/api-client.ts       # ApiClient (fetch wrapper, envoie X-API-Key si configure) + types re-exportes de core
-├── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey
-└── __tests__/              # vitest — App, Options, AnalyzeTab, PlayerTab, settings store, api-client, useCurrentRoom, logo
+├── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey (persistes via browser.storage.sync)
+├── assets/                 # logo.svg (source pour generate-icons.mjs, pas inclus dans le build)
+└── __tests__/              # vitest (avec WxtVitest plugin + fakeBrowser) — App, Options, AnalyzeTab, PlayerTab, settings store, api-client, useCurrentRoom, logo
 ```
+
+WXT genere `.wxt/` au runtime (`wxt prepare`) avec les types auto-generes — gitignore. Sortie de build : `.output/<browser>-mv3/`. Sortie zip : `.output/faceit-coach-<version>-<browser>.zip`.
 
 ## Responsabilites
 
-- **core** : logique FACEIT pure + i18n — jamais de `process.env`, jamais de `chrome.*`, jamais de `discord.js`. `initFaceitApi(key)` doit etre appele une fois par le consommateur avant toute requete.
+- **core** : logique FACEIT pure + i18n — jamais de `process.env`, jamais de `browser.*` / `chrome.*`, jamais de `discord.js`. `initFaceitApi(key)` doit etre appele une fois par le consommateur avant toute requete.
 - **bot** : importe `@faceit-coach/core` directement (pas d'appel HTTP intermediaire). Pas de dependance a l'API.
 - **api** : proxifie core via HTTP pour les clients externes (extension + futur). Valide toutes les entrees avec Zod.
 - **extension** : pur client de l'API. Jamais d'appel FACEIT direct (la cle reste cote serveur).
@@ -133,7 +142,7 @@ src/
 - Reponses (embeds, messages) : chaque handler lit `detectLocale(interaction.locale)` puis passe `locale` a `errorEmbed(locale, msg)`, `pickBanEmbed(locale, result)`, etc. Les helpers dans `embeds.ts` prennent la locale en premier argument.
 
 **Extension Chrome :**
-- `useI18n()` (dans `packages/extension/src/composables/useI18n.ts`) expose `t` + `locale`. La locale est detectee une fois au chargement du popup via `detectLocale(navigator.language)` puis figee — pas de selecteur dans l'UI, pas de persistance dans `chrome.storage`. Pour changer la langue, l'utilisateur change la langue de son navigateur.
+- `useI18n()` (dans `packages/extension/src/composables/useI18n.ts`) expose `t` + `locale`. La locale est detectee une fois au chargement du popup via `detectLocale(navigator.language)` puis figee — pas de selecteur dans l'UI, pas de persistance dans `browser.storage`. Pour changer la langue, l'utilisateur change la langue de son navigateur.
 
 **Ajouter une nouvelle traduction :**
 1. Ajouter la cle dans `en.ts` (forme canonique) — la forme est automatiquement imposee a `fr.ts` par le type.
@@ -199,15 +208,23 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 - **Headers :** `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `X-DNS-Prefetch-Control: off`. `Strict-Transport-Security` uniquement en prod.
 - **Graceful shutdown :** SIGTERM/SIGINT → `server.close()` + exit forcé apres 10s.
 
-## Extension Chrome (MV3)
+## Extension cross-browser (MV3)
+
+L'extension cible **Chrome + Firefox** (et derives : Edge, Brave, Opera, Vivaldi consomment le build Chrome). Une seule codebase, deux cibles via `wxt build -b chrome|firefox`.
 
 - **Popup** : 2 onglets.
   - **Player** : recherche par pseudo → `ApiClient.getPlayer()` → profil + ELO + top 5 maps.
-  - **Analyze** : detecte le `roomId` de l'onglet actif via `useCurrentRoom` (lit `chrome.tabs.query`), charge le match via `ApiClient.getMatch()`, auto-selectionne l'equipe via `defaultPseudo`, puis `ApiClient.analyze()` → tableau pick/ban avec tooltip breakdown.
-- **Options** : configurer `apiBaseUrl` (defaut `http://localhost:8787`), `defaultPseudo`, et `apiKey` (facultatif, requis si l'API l'impose). Persistes via `chrome.storage.sync`.
-- **Pas de background worker ni de content script** : tout se passe dans le popup. La detection de room utilise directement `chrome.tabs` via `useCurrentRoom`.
+  - **Analyze** : detecte le `roomId` de l'onglet actif via `useCurrentRoom` (lit `browser.tabs.query`), charge le match via `ApiClient.getMatch()`, auto-selectionne l'equipe via `defaultPseudo`, puis `ApiClient.analyze()` → tableau pick/ban avec tooltip breakdown.
+- **Options** : configurer `apiBaseUrl` (defaut `http://localhost:8787`), `defaultPseudo`, et `apiKey` (facultatif, requis si l'API l'impose). Persistes via `browser.storage.sync`.
+- **Pas de background worker ni de content script** : tout se passe dans le popup. La detection de room utilise directement `browser.tabs` via `useCurrentRoom`.
+- **API browser** : import via `import { browser } from 'wxt/browser'` (polyfill webextension-polyfill — meme code Chrome et Firefox). En tests, `WxtVitest()` plugin remplace `wxt/browser` par `fakeBrowser` (in-memory).
 - **Host permission** : `http://localhost:8787/*` (a adapter en prod).
 - **API key** : `ApiClient` envoie `X-API-Key: <apiKey>` sur toutes les requetes sauf `/health` quand la cle est definie.
+
+### Identifiants stables
+
+- **Chrome Extension ID** : `khpfppjaichdmbcoihjihfahooklnblc` — derive du champ `key` du manifest (cle publique RSA dans `wxt.config.ts`, cle privee hors-repo).
+- **Firefox Add-on ID** : `faceit-coach@quentin.maignan` — defini via `browser_specific_settings.gecko.id`. A noter : Firefox utilise un UUID local par instance pour `moz-extension://<UUID>` dans les requetes HTTP, donc cote `API_CORS_ORIGINS` il faut autoriser `moz-extension://*` (pas l'add-on ID).
 
 ## Services core (details)
 
@@ -310,7 +327,6 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 Source de verite : tags git `vX.Y.Z`. Voir `RELEASE.md` pour le detail.
 
 - `.github/workflows/release.yml` se declenche sur `git push --tags`.
-- Job `build-extension` : sync `manifest.version` avec le tag, build + zip de `dist/`, attache a une release GitHub avec changelog auto.
+- Job `build-extension` : sync `version` dans `packages/extension/package.json` avec le tag, puis `wxt zip` (Chrome MV3) et `wxt zip -b firefox` (Firefox MV3). Les deux zips (`faceit-coach-vX.Y.Z-chrome.zip`, `faceit-coach-vX.Y.Z-firefox.zip`) sont attaches a une release GitHub avec changelog auto.
 - Job `deploy-server` : SSH vers le serveur prod (secrets `DEPLOY_HOST`/`DEPLOY_USER`/`DEPLOY_SSH_KEY`/`DEPLOY_PATH`), checkout du tag, `docker compose up -d --build` (rebuild bot + api).
-- Extension ID stable : `khpfppjaichdmbcoihjihfahooklnblc` (derive de la cle publique RSA dans `manifest.key`). Identique chez tous les friends — un seul origin a whitelister cote `API_CORS_ORIGINS`.
-- Cle privee correspondante stockee hors-repo (`~/.config/faceit-coach/extension-private.pem`). `.gitignore` exclut `*.pem` et `*-extension.key`.
+- Cle privee Chrome stockee hors-repo (`~/.config/faceit-coach/extension-private.pem`). `.gitignore` exclut `*.pem` et `*-extension.key`.

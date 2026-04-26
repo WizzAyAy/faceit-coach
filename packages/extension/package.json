@@ -3,16 +3,22 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "Chrome extension — FACEIT Coach companion popup for faceit.com",
+  "description": "Cross-browser web extension — FACEIT Coach companion popup for faceit.com",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "typecheck": "vue-tsc --noEmit",
-    "preview": "vite preview",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "build:all": "wxt build && wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "zip:all": "wxt zip && wxt zip -b firefox",
+    "typecheck": "wxt prepare && vue-tsc --noEmit",
     "icons": "node scripts/generate-icons.mjs",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "postinstall": "wxt prepare"
   },
   "dependencies": {
     "@faceit-coach/core": "workspace:*",
@@ -21,20 +27,19 @@
     "vue": "^3.5.33"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.4.0",
     "@iconify-json/mdi": "^1.2.3",
-    "@types/chrome": "^0.1.40",
     "@unocss/preset-icons": "^66.6.8",
     "@unocss/preset-uno": "^66.6.8",
     "@unocss/reset": "^66.6.8",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/test-utils": "^2.4.8",
+    "@wxt-dev/module-vue": "^1.0.3",
     "happy-dom": "^20.9.0",
     "unocss": "^66.6.8",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.0.0",
-    "vite": "^8.0.10",
     "vitest": "^4.1.5",
-    "vue-tsc": "^3.2.7"
+    "vue-tsc": "^3.2.7",
+    "wxt": "^0.20.25"
   }
 }

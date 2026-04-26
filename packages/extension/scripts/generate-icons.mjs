@@ -5,14 +5,16 @@ import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const assets = join(here, '..', 'src', 'assets')
+const root = join(here, '..')
+const assets = join(root, 'src', 'assets')
+const publicDir = join(root, 'public')
 
 const svg = await readFile(join(assets, 'logo.svg'))
 
 const sizes = [16, 32, 48, 128]
 
 for (const size of sizes) {
-  const out = join(assets, `icon-${size}.png`)
+  const out = join(publicDir, `icon-${size}.png`)
   await sharp(svg, { density: 384 })
     .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()

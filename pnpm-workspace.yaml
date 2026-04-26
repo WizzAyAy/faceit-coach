@@ -4,3 +4,5 @@ trustPolicy: no-downgrade
 
 packages:
   - 'packages/*'
+overrides:
+  '@webext-core/isolated-element': 1.1.4

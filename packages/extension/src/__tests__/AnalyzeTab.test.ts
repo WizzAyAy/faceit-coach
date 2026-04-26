@@ -1,6 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { browser } from 'wxt/browser'
 import { locale } from '../composables/useI18n.js'
 
 beforeAll(() => {
@@ -49,14 +50,14 @@ describe('analyzeTab', () => {
   })
 
   it('should display the no-room hint and manual input when no room is detected', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([])
     const wrapper = mountTab()
     await flushPromises()
     expect(wrapper.find('input[placeholder="Colle le room_id ici"]').exists()).toBe(true)
   })
 
   it('should show an error when analyze is clicked without a room', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([])
     const wrapper = mountTab()
     await flushPromises()
     await wrapper.find('button').trigger('click')
@@ -64,7 +65,7 @@ describe('analyzeTab', () => {
   })
 
   it('should load a match and auto-select team 1 when default pseudo matches faction1', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{
       url: 'https://www.faceit.com/fr/cs2/room/1-abc',
     }])
     getMatchMock.mockResolvedValueOnce({
@@ -82,7 +83,7 @@ describe('analyzeTab', () => {
   })
 
   it('should auto-select team 2 when pseudo matches faction2', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
@@ -98,7 +99,7 @@ describe('analyzeTab', () => {
   })
 
   it('should reset auto badge when the pseudo is not found', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
@@ -113,7 +114,7 @@ describe('analyzeTab', () => {
   })
 
   it('should drop match state when getMatch fails', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockRejectedValueOnce(new Error('nope'))
     const wrapper = mountTab()
     await flushPromises()
@@ -121,7 +122,7 @@ describe('analyzeTab', () => {
   })
 
   it('should render analysis with all color branches', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
@@ -154,7 +155,7 @@ describe('analyzeTab', () => {
   })
 
   it('should render an error from analyze failure', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
@@ -169,7 +170,7 @@ describe('analyzeTab', () => {
   })
 
   it('should handle non-Error rejections from analyze', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
@@ -184,7 +185,7 @@ describe('analyzeTab', () => {
   })
 
   it('should use manual room id when auto-detection gives nothing', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'manual',
       status: 'ONGOING',
@@ -201,7 +202,7 @@ describe('analyzeTab', () => {
   })
 
   it('should reset auto badge when the user changes the team select', async () => {
-    ;(chrome.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
+    ;(browser.tabs.query as any).mockResolvedValueOnce([{ url: 'https://faceit.com/room/r' }])
     getMatchMock.mockResolvedValueOnce({
       matchId: 'r',
       status: 'ONGOING',
