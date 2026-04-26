@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { MapScore, PickBanResult } from '@faceit-coach/core'
 import type { MatchResponse } from '@/lib/api-client.js'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { browser } from 'wxt/browser'
+import { useFaceitUser } from '@/composables/useFaceitUser.js'
 import { useI18n } from '@/composables/useI18n.js'
 import { ApiClient } from '@/lib/api-client.js'
 import { FIXTURE_ANALYSIS, FIXTURE_MATCH } from '@/lib/fixtures.js'
@@ -32,6 +33,12 @@ const result = ref<PickBanResult | null>(null)
 const team = ref<1 | 2 | null>(null)
 const teamAutoDetected = ref(false)
 
+const { nickname: detectedNickname, ready: detectionReady } = useFaceitUser()
+
+function effectivePseudo(): string {
+  return (detectedNickname.value ?? settings.value.defaultPseudo).trim()
+}
+
 async function loadSettings() {
   const stored = await browser.storage.sync.get([
     'apiBaseUrl',
@@ -48,7 +55,7 @@ async function loadSettings() {
 }
 
 function autoSelectTeam(m: MatchResponse) {
-  const pseudo = settings.value.defaultPseudo.toLowerCase()
+  const pseudo = effectivePseudo().toLowerCase()
   if (!pseudo) {
     team.value = team.value ?? 1
     teamAutoDetected.value = false
@@ -123,18 +130,9 @@ async function changeTeam(next: 1 | 2) {
   }
 }
 
-function onUrlChange() {
-  refresh()
-}
-
 onMounted(async () => {
-  await loadSettings()
+  await Promise.all([loadSettings(), detectionReady])
   await refresh()
-  window.addEventListener('wxt:locationchange', onUrlChange)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('wxt:locationchange', onUrlChange)
 })
 
 const sortedMaps = computed<MapScore[]>(() => {
@@ -180,7 +178,7 @@ function decisionFor(m: MapScore): 'pick' | 'ban' | 'neutral' {
     </header>
 
     <div v-if="!collapsed" class="fc-body">
-      <div v-if="match" class="fc-teams">
+      <div v-if="match && !teamAutoDetected" class="fc-teams">
         <button
           type="button"
           class="fc-team"
@@ -201,7 +199,7 @@ function decisionFor(m: MapScore): 'pick' | 'ban' | 'neutral' {
         </button>
       </div>
 
-      <p v-if="!settings.defaultPseudo && match" class="fc-hint">
+      <p v-if="match && !teamAutoDetected && !effectivePseudo()" class="fc-hint">
         {{ t('extension.panel.noTeam') }}
       </p>
 

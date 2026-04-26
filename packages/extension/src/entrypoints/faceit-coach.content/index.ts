@@ -23,14 +23,24 @@ export default defineContentScript({
       },
     })
 
-    function syncToUrl() {
-      if (parseRoomId(window.location.href))
-        ui.mount()
-      else
-        ui.remove()
-    }
+    let lastRoomId = parseRoomId(window.location.href)
+    if (lastRoomId)
+      ui.mount()
 
-    syncToUrl()
-    ctx.addEventListener(window, 'wxt:locationchange', syncToUrl)
+    // FACEIT's SPA does not always trigger `wxt:locationchange`, so we poll
+    // the URL ourselves. The check is a quick string match — cheap enough
+    // to run twice a second.
+    const POLL_MS = 500
+    const pollId = window.setInterval(() => {
+      const current = parseRoomId(window.location.href)
+      if (current === lastRoomId)
+        return
+      if (lastRoomId)
+        ui.remove()
+      if (current)
+        ui.mount()
+      lastRoomId = current
+    }, POLL_MS)
+    ctx.onInvalidated(() => window.clearInterval(pollId))
   },
 })
