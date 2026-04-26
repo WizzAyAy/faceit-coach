@@ -33,6 +33,12 @@ export default defineConfig({
         'src/__tests__/**',
         'src/entrypoints/popup/main.ts',
         'src/entrypoints/options/main.ts',
+        // Content-script entry uses WXT lifecycle APIs that are not worth
+        // exercising via unit tests; the panel itself is verified manually
+        // and via the fixture/mock mode toggle.
+        'src/entrypoints/faceit-coach.content/**',
+        // Pure fixture data — nothing to assert beyond shape.
+        'src/lib/fixtures.ts',
       ],
       thresholds: {
         lines: 100,

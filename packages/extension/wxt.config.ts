@@ -57,6 +57,7 @@ export default defineConfig({
     host_permissions: [
       'http://localhost:8787/*',
       'https://api.faceit-coach.example/*',
+      'https://www.faceit.com/*',
     ],
   },
   zip: {

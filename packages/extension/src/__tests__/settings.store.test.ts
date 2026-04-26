@@ -16,6 +16,7 @@ describe('settings store', () => {
     expect(store.apiBaseUrl).toBe('http://localhost:8787')
     expect(store.defaultPseudo).toBe('')
     expect(store.apiKey).toBe('')
+    expect(store.mockMode).toBe(false)
   })
 
   it('should load stored values from browser.storage.sync', async () => {
@@ -23,21 +24,24 @@ describe('settings store', () => {
       apiBaseUrl: 'https://api.example',
       defaultPseudo: 'foo',
       apiKey: 'k',
+      mockMode: true,
     })
     const store = useSettingsStore()
     await store.load()
     expect(store.apiBaseUrl).toBe('https://api.example')
     expect(store.defaultPseudo).toBe('foo')
     expect(store.apiKey).toBe('k')
+    expect(store.mockMode).toBe(true)
   })
 
-  it('should ignore non-string stored values', async () => {
-    await browser.storage.sync.set({ apiBaseUrl: 42, defaultPseudo: null, apiKey: true })
+  it('should ignore non-string and non-boolean stored values', async () => {
+    await browser.storage.sync.set({ apiBaseUrl: 42, defaultPseudo: null, apiKey: true, mockMode: 'yes' })
     const store = useSettingsStore()
     await store.load()
     expect(store.apiBaseUrl).toBe('http://localhost:8787')
     expect(store.defaultPseudo).toBe('')
     expect(store.apiKey).toBe('')
+    expect(store.mockMode).toBe(false)
   })
 
   it('should persist patch fields and leave untouched ones intact', async () => {
@@ -48,6 +52,9 @@ describe('settings store', () => {
     expect(store.apiBaseUrl).toBe('https://x')
     expect(store.defaultPseudo).toBe('bar')
     await store.save({ apiKey: 'sek' })
+    expect(store.apiKey).toBe('sek')
+    await store.save({ mockMode: true })
+    expect(store.mockMode).toBe(true)
     expect(store.apiKey).toBe('sek')
   })
 })

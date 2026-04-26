@@ -22,6 +22,7 @@ describe('options', () => {
       apiBaseUrl: 'https://api',
       defaultPseudo: 'Me',
       apiKey: 'k',
+      mockMode: true,
     })
     const wrapper = mount(Options)
     await flushPromises()
@@ -29,9 +30,10 @@ describe('options', () => {
     expect((inputs[0].element as HTMLInputElement).value).toBe('https://api')
     expect((inputs[1].element as HTMLInputElement).value).toBe('Me')
     expect((inputs[2].element as HTMLInputElement).value).toBe('k')
+    expect((inputs[3].element as HTMLInputElement).checked).toBe(true)
   })
 
-  it('should show "Saved ✓" transiently after submit', async () => {
+  it('should show "Saved ✓" transiently after submit and persist mockMode', async () => {
     vi.useFakeTimers()
     const wrapper = mount(Options)
     await flushPromises()
@@ -39,6 +41,7 @@ describe('options', () => {
     await inputs[0].setValue(' https://api.new ')
     await inputs[1].setValue(' me ')
     await inputs[2].setValue(' key ')
+    await inputs[3].setValue(true)
     await wrapper.get('form').trigger('submit.prevent')
     await flushPromises()
     expect(wrapper.text()).toContain('Enregistré')
@@ -46,9 +49,10 @@ describe('options', () => {
     await flushPromises()
     expect(wrapper.text()).not.toContain('Enregistré')
     vi.useRealTimers()
-    const stored = await browser.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey'])
+    const stored = await browser.storage.sync.get(['apiBaseUrl', 'defaultPseudo', 'apiKey', 'mockMode'])
     expect(stored.apiBaseUrl).toBe('https://api.new')
     expect(stored.defaultPseudo).toBe('me')
     expect(stored.apiKey).toBe('key')
+    expect(stored.mockMode).toBe(true)
   })
 })

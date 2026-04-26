@@ -124,8 +124,18 @@ export const en = {
       defaultPseudoPlaceholder: 'YourFaceitName',
       apiKey: 'API key (optional — required if the server enforces it)',
       apiKeyPlaceholder: 'X-API-Key',
+      mockMode: 'Mock mode',
+      mockModeHint: 'Show fixture pick/ban data instead of calling the API. Use to iterate on the panel UI without a live match.',
       save: 'Save',
       saved: 'Saved ✓',
+    },
+    panel: {
+      title: 'FACEIT Coach',
+      mockBadge: 'MOCK',
+      loading: 'Loading…',
+      noTeam: 'Set your default nickname in the extension options to auto-detect your team.',
+      collapse: 'Collapse panel',
+      expand: 'Expand panel',
     },
   },
 } as const

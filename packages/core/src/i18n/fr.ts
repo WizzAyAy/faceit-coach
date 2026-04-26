@@ -130,8 +130,18 @@ export const fr: DeepStringify<typeof en> = {
       defaultPseudoPlaceholder: 'TonPseudoFaceit',
       apiKey: 'Clé API (optionnel — requise si le serveur l\'impose)',
       apiKeyPlaceholder: 'X-API-Key',
+      mockMode: 'Mode démo',
+      mockModeHint: 'Affiche des données pick/ban factices au lieu d\'appeler l\'API. Utile pour itérer sur l\'UI sans un vrai match en cours.',
       save: 'Enregistrer',
       saved: 'Enregistré ✓',
+    },
+    panel: {
+      title: 'FACEIT Coach',
+      mockBadge: 'DEMO',
+      loading: 'Chargement…',
+      noTeam: 'Renseigne ton pseudo par défaut dans les options pour la détection auto d\'équipe.',
+      collapse: 'Réduire le panneau',
+      expand: 'Déplier le panneau',
     },
   },
 }

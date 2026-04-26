@@ -1,8 +1,6 @@
 import { onMounted, ref } from 'vue'
 import { browser } from 'wxt/browser'
-
-// FACEIT room ids look like `1-<uuid>` (38 chars) — match everything up to the next /, ?, or #
-const ROOM_ID_RE = /\/room\/([^/?#]+)/i
+import { parseRoomId } from '@/lib/parse-room-id.js'
 
 export function useCurrentRoom() {
   const roomId = ref<string | null>(null)
@@ -11,7 +9,7 @@ export function useCurrentRoom() {
   async function refresh() {
     const [tab] = await browser.tabs.query({ active: true, currentWindow: true })
     tabUrl.value = tab?.url ?? null
-    roomId.value = tab?.url?.match(ROOM_ID_RE)?.[1] ?? null
+    roomId.value = parseRoomId(tab?.url)
   }
 
   onMounted(refresh)
