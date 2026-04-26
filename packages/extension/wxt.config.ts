@@ -1,7 +1,20 @@
 import { fileURLToPath } from 'node:url'
+import { builtinPresets } from 'unimport'
 import UnoCSS from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'wxt'
+
+// `toRef` is auto-imported from both `vue` (added by @wxt-dev/module-vue) and
+// `@vueuse/core`, which triggers a duplicate-import warning on every build/test.
+// VueUse re-exports Vue's `toRef`, so dropping it from the VueUse preset keeps
+// semantics identical and silences the warning.
+const vueUseBase = builtinPresets['@vueuse/core']({})
+const vueUseWithoutToRef = {
+  ...vueUseBase,
+  imports: vueUseBase.imports.filter(
+    i => (typeof i === 'string' ? i : i.name) !== 'toRef',
+  ),
+}
 
 // Public RSA key — derives a stable Extension ID across Chrome installs
 // (khpfppjaichdmbcoihjihfahooklnblc). The matching private key lives outside
@@ -15,8 +28,12 @@ export default defineConfig({
   srcDir: 'src',
   manifestVersion: 3,
   modules: ['@wxt-dev/module-vue'],
+  // The Firefox manifest gets `gecko.data_collection_permissions = { required: ['none'] }`
+  // via the `build:manifestGenerated` hook below. WXT's static check runs before
+  // the hook, so it warns regardless — silence it since the field is correctly set.
+  suppressWarnings: { firefoxDataCollection: true },
   imports: {
-    presets: ['vue', 'pinia', '@vueuse/core'],
+    presets: ['vue', 'pinia', vueUseWithoutToRef],
     dirs: ['composables', 'stores'],
   },
   vite: () => ({
@@ -26,7 +43,7 @@ export default defineConfig({
       },
     },
     plugins: [
-      UnoCSS(),
+      UnoCSS({ mode: 'per-module' }),
       Components({
         dirs: ['src/components'],
         dts: 'components.d.ts',
@@ -52,6 +69,7 @@ export default defineConfig({
           gecko: {
             id: FIREFOX_EXTENSION_ID,
             strict_min_version: '115.0',
+            data_collection_permissions: { required: ['none'] },
           },
         }
       }
