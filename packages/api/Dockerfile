@@ -1,4 +1,4 @@
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
@@ -19,7 +19,7 @@ RUN pnpm --filter '@faceit-coach/api...' build
 
 RUN pnpm --filter '@faceit-coach/api...' deploy --prod /out
 
-FROM node:22-alpine AS runtime
+FROM node:24-alpine AS runtime
 
 WORKDIR /app
 COPY --from=builder /out/dist ./dist

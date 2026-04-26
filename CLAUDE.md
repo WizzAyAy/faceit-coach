@@ -7,7 +7,7 @@
 
 ## Stack
 
-- **Runtime:** Node.js 22 (Alpine en Docker)
+- **Runtime:** Node.js 24 (Alpine en Docker)
 - **Langage:** TypeScript (ES2023, strict, ES modules)
 - **Monorepo:** pnpm workspaces + Turborepo
 - **Bot:** discord.js 14

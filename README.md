@@ -23,7 +23,7 @@ Tout est en TypeScript strict, organise en monorepo pnpm + Turborepo.
 
 | Couche | Techno |
 |--------|--------|
-| Runtime | Node.js 22 (Alpine en Docker) |
+| Runtime | Node.js 24 (Alpine en Docker) |
 | Langage | TypeScript strict, ES modules, target ES2023 |
 | Monorepo | pnpm workspaces + Turborepo |
 | Bot | discord.js 14 |

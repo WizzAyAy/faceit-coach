@@ -4,7 +4,7 @@ Ce guide couvre l'installation de FACEIT Coach en dev local et en production (Do
 
 ## Prerequis
 
-- **Node.js 22** (LTS). Verifier avec `node -v`.
+- **Node.js 24** (LTS). Verifier avec `node -v`.
 - **pnpm 10.33.0** minimum. Installation : `corepack enable && corepack prepare pnpm@10.33.0 --activate`.
 - **Docker + Docker Compose** (uniquement pour le deploiement prod).
 - **Chrome / Chromium** (uniquement pour l'extension).
