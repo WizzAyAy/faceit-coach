@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { analyzeLobby, analyzeTeam } from '../services/analyzer.js'
-import { cache } from '../services/cache.js'
+import { analyzeLobby, analyzeTeam } from '@/services/analyzer.js'
+import { cache } from '@/services/cache.js'
 
-import { faceitApi } from '../services/faceit-api.js'
+import { faceitApi } from '@/services/faceit-api.js'
 
 // Mock faceitApi entirely — no env or network
 vi.mock('../services/faceit-api.js', () => ({

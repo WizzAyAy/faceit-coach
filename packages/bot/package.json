@@ -6,7 +6,7 @@
   "description": "FACEIT Coach Discord bot",
   "scripts": {
     "dev": "tsx --env-file=../../.env src/index.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node --env-file=../../.env dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

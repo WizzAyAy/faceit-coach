@@ -1,8 +1,8 @@
-import type { PlayerAnalysis } from '../types.js'
+import type { PlayerAnalysis } from '@/types.js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { analyzeTeam, calculateMapScores, computePickBan, monthsAgoTimestamp } from '../services/analyzer.js'
-import { cache } from '../services/cache.js'
-import { faceitApi } from '../services/faceit-api.js'
+import { analyzeTeam, calculateMapScores, computePickBan, monthsAgoTimestamp } from '@/services/analyzer.js'
+import { cache } from '@/services/cache.js'
+import { faceitApi } from '@/services/faceit-api.js'
 
 vi.mock('../services/faceit-api.js', () => ({
   faceitApi: {

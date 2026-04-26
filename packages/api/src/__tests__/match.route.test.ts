@@ -8,7 +8,7 @@ vi.mock('@faceit-coach/core', () => ({
 
 const core = await import('@faceit-coach/core')
 const mockGetMatch = vi.mocked(core.faceitApi.getMatch)
-const { matchRoute } = await import('../routes/match.js')
+const { matchRoute } = await import('@/routes/match.js')
 
 describe('gET /match/:roomId', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CACHE_TTL, CS2_MAP_POOL, isInMapPool, MAP_DISPLAY_NAMES, normalizeMapName, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
+import { CACHE_TTL, CS2_MAP_POOL, isInMapPool, MAP_DISPLAY_NAMES, normalizeMapName, UNCERTAINTY_THRESHOLD } from '@/utils/constants.js'
 
 describe('constants', () => {
   it('should have 8 maps in the pool', () => {

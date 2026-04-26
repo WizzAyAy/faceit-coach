@@ -1,4 +1,4 @@
-import type { en } from './en.js'
+import type { en } from '@/i18n/en.js'
 
 type DeepStringify<T> = T extends string
   ? string

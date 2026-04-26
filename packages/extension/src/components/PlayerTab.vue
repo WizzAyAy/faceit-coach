@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { PlayerResponse } from '../lib/api-client.js'
+import type { PlayerResponse } from '@/lib/api-client.js'
 import { onMounted, ref } from 'vue'
-import { useI18n } from '../composables/useI18n.js'
-import { ApiClient } from '../lib/api-client.js'
-import { useSettingsStore } from '../stores/settings.js'
+import { useI18n } from '@/composables/useI18n.js'
+import { ApiClient } from '@/lib/api-client.js'
+import { useSettingsStore } from '@/stores/settings.js'
 
 const settings = useSettingsStore()
 const { t } = useI18n()

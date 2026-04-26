@@ -5,9 +5,9 @@ import type {
   FaceitMatchHistory,
   FaceitPlayer,
   FaceitPlayerStats,
-} from '../types.js'
-import { CACHE_TTL, FACEIT_API_BASE } from '../utils/constants.js'
-import { cache } from './cache.js'
+} from '@/types.js'
+import { cache } from '@/services/cache.js'
+import { CACHE_TTL, FACEIT_API_BASE } from '@/utils/constants.js'
 
 let apiKey: string | undefined
 

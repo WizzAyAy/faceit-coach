@@ -1,8 +1,8 @@
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types.js'
+import type { BotCommand } from '@/types.js'
 import { analyzeLobby, detectLocale, faceitApi, messages, monthsAgoTimestamp, t } from '@faceit-coach/core'
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js'
-import { errorEmbed, pickBanEmbed } from '../utils/embeds.js'
+import { errorEmbed, pickBanEmbed } from '@/utils/embeds.js'
 
 const DEFAULT_PERIOD_MONTHS = 6
 const MAX_MATCHES_PER_PLAYER = 300

@@ -1,7 +1,7 @@
 import { analyzeLobby, faceitApi, monthsAgoTimestamp } from '@faceit-coach/core'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-import { liveQuerySchema, pseudoParamsSchema } from '../schemas.js'
+import { liveQuerySchema, pseudoParamsSchema } from '@/schemas.js'
 
 const DEFAULT_PERIOD_MONTHS = 6
 const MAX_MATCHES_PER_PLAYER = 300

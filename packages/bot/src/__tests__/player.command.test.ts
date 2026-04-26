@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { makeInteraction } from './helpers.js'
+import { makeInteraction } from '@/__tests__/helpers.js'
 
 vi.mock('@faceit-coach/core', async () => {
   const actual = await vi.importActual<typeof import('@faceit-coach/core')>('@faceit-coach/core')
@@ -15,7 +15,7 @@ vi.mock('@faceit-coach/core', async () => {
 const core = await import('@faceit-coach/core')
 const mockByNick = vi.mocked(core.faceitApi.getPlayerByNickname)
 const mockStats = vi.mocked(core.faceitApi.getPlayerStats)
-const { default: player } = await import('../commands/player.js')
+const { default: player } = await import('@/commands/player.js')
 
 describe('/player command', () => {
   beforeEach(() => vi.clearAllMocks())

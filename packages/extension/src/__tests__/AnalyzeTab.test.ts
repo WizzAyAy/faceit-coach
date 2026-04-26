@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { browser } from 'wxt/browser'
-import { locale } from '../composables/useI18n.js'
+import { locale } from '@/composables/useI18n.js'
 
 beforeAll(() => {
   locale.value = 'fr'
@@ -18,8 +18,8 @@ vi.mock('../lib/api-client.js', () => ({
 }))
 
 declare const __resetChrome: () => void
-const AnalyzeTab = (await import('../components/AnalyzeTab.vue')).default
-const { useSettingsStore } = await import('../stores/settings.js')
+const AnalyzeTab = (await import('@/components/AnalyzeTab.vue')).default
+const { useSettingsStore } = await import('@/stores/settings.js')
 
 function aMap(o: { map: string, advantage: number, confidence?: 'high' | 'medium' | 'low', ourTotal?: number, theirTotal?: number }) {
   return {

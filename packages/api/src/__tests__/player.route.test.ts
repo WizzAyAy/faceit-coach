@@ -12,7 +12,7 @@ vi.mock('@faceit-coach/core', () => ({
 const core = await import('@faceit-coach/core')
 const mockGetPlayer = vi.mocked(core.faceitApi.getPlayerByNickname)
 const mockGetStats = vi.mocked(core.faceitApi.getPlayerStats)
-const { playerRoute } = await import('../routes/player.js')
+const { playerRoute } = await import('@/routes/player.js')
 
 describe('gET /player/:pseudo', () => {
   beforeEach(() => {

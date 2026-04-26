@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cache } from '../services/cache.js'
-import { faceitApi, initFaceitApi } from '../services/faceit-api.js'
+import { cache } from '@/services/cache.js'
+import { faceitApi, initFaceitApi } from '@/services/faceit-api.js'
 
 // Mock global fetch
 const mockFetch = vi.fn()

@@ -1,5 +1,5 @@
-import { en } from './en.js'
-import { fr } from './fr.js'
+import { en } from '@/i18n/en.js'
+import { fr } from '@/i18n/fr.js'
 
 export type Locale = 'en' | 'fr'
 

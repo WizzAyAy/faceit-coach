@@ -1,6 +1,6 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cache } from '../services/cache.js'
-import { faceitApi, FaceitApiError, initFaceitApi } from '../services/faceit-api.js'
+import { cache } from '@/services/cache.js'
+import { faceitApi, FaceitApiError, initFaceitApi } from '@/services/faceit-api.js'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)
@@ -159,7 +159,7 @@ describe('faceitApi extra coverage', () => {
     it('should throw when api is used before init', async () => {
       // Simulate an uninitialized state by clearing module state
       vi.resetModules()
-      const mod = await import('../services/faceit-api.js')
+      const mod = await import('@/services/faceit-api.js')
       // note: core module-state is shared — re-init immediately to not break other tests
       await expect(mod.faceitApi.getPlayer('x')).rejects.toThrow(/not initialized/)
       mod.initFaceitApi('test-api-key')

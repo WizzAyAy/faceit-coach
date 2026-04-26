@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { MAP_STRATS } from '../data/strats.js'
-import { CS2_MAP_POOL } from '../utils/constants.js'
+import { MAP_STRATS } from '@/data/strats.js'
+import { CS2_MAP_POOL } from '@/utils/constants.js'
 
 describe('mAP_STRATS', () => {
   it('should define strats for every map in the pool', () => {

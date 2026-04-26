@@ -1,6 +1,6 @@
 import type { MapScore, MapStrats, PickBanResult } from '@faceit-coach/core'
 import { describe, expect, it } from 'vitest'
-import { errorEmbed, pickBanEmbed, playerEmbed, stratsEmbeds } from '../utils/embeds.js'
+import { errorEmbed, pickBanEmbed, playerEmbed, stratsEmbeds } from '@/utils/embeds.js'
 
 function makeMapScore(partial: { map: string, ourScore: number, theirScore: number, advantage: number, confidence: 'high' | 'medium' | 'low', ourTotalMatches: number, theirTotalMatches: number }): MapScore {
   return {

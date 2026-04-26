@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ApiClient } from '../lib/api-client.js'
+import { ApiClient } from '@/lib/api-client.js'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('fetch', mockFetch)

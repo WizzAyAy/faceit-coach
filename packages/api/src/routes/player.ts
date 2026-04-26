@@ -1,7 +1,7 @@
 import { faceitApi, isInMapPool, normalizeMapName } from '@faceit-coach/core'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-import { pseudoParamsSchema } from '../schemas.js'
+import { pseudoParamsSchema } from '@/schemas.js'
 
 export const playerRoute = new Hono()
 

@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import Logo from '../components/Logo.vue'
+import Logo from '@/components/Logo.vue'
 
 describe('logo', () => {
   it('should render an SVG with the default size', () => {

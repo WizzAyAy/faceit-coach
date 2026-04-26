@@ -6,7 +6,7 @@
   "description": "HTTP API proxying FACEIT — used by the Chrome extension and any external client",
   "scripts": {
     "dev": "tsx --env-file=../../.env --watch src/index.ts",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node --env-file=../../.env dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

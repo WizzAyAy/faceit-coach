@@ -1,8 +1,8 @@
-import type { BotCommand } from './types.js'
+import type { BotCommand } from '@/types.js'
 import process from 'node:process'
 import { detectLocale, initFaceitApi, t } from '@faceit-coach/core'
 import { Client, Collection, Events, GatewayIntentBits, REST, Routes } from 'discord.js'
-import { config } from './config.js'
+import { config } from '@/config.js'
 
 initFaceitApi(config.faceitApiKey)
 
@@ -57,7 +57,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     console.error(`Error executing ${interaction.commandName}:`, error)
     try {
       const locale = detectLocale(interaction.locale)
-      const { errorEmbed } = await import('./utils/embeds.js')
+      const { errorEmbed } = await import('@/utils/embeds.js')
       const content = { embeds: [errorEmbed(locale, t(locale, 'common.error.unexpected'))] }
       if (interaction.replied || interaction.deferred)
         await interaction.followUp(content)

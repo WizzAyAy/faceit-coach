@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import UnoCSS from 'unocss/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'wxt'
@@ -19,6 +20,11 @@ export default defineConfig({
     dirs: ['composables', 'stores'],
   },
   vite: () => ({
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
     plugins: [
       UnoCSS(),
       Components({

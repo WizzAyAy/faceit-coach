@@ -15,7 +15,7 @@ const mockGetPlayer = vi.mocked(core.faceitApi.getPlayerByNickname)
 const mockGetHistory = vi.mocked(core.faceitApi.getPlayerHistory)
 const mockGetMatch = vi.mocked(core.faceitApi.getMatch)
 const mockAnalyze = vi.mocked(core.analyzeLobby)
-const { liveRoute } = await import('../routes/live.js')
+const { liveRoute } = await import('@/routes/live.js')
 
 describe('gET /live/:pseudo', () => {
   beforeEach(() => {

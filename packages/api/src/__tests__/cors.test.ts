@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { describe, expect, it } from 'vitest'
-import { matchOrigin } from '../cors.js'
+import { matchOrigin } from '@/cors.js'
 
 describe('matchOrigin', () => {
   it('allows any origin when patterns contain *', () => {

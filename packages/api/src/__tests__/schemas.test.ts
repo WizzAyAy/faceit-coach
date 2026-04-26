@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { analyzeBodySchema, mapParamsSchema, pseudoParamsSchema } from '../schemas.js'
+import { analyzeBodySchema, mapParamsSchema, pseudoParamsSchema } from '@/schemas.js'
 
 describe('schemas', () => {
   describe('analyzeBodySchema', () => {

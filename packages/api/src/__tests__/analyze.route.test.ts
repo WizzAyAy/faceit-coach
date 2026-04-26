@@ -12,7 +12,7 @@ const core = await import('@faceit-coach/core')
 const mockGetMatch = vi.mocked(core.faceitApi.getMatch)
 const mockAnalyze = vi.mocked(core.analyzeLobby)
 
-const { analyzeRoute } = await import('../routes/analyze.js')
+const { analyzeRoute } = await import('@/routes/analyze.js')
 
 function post(body: unknown): Promise<Response> {
   return analyzeRoute.request('/', {

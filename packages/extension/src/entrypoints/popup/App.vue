@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import AnalyzeTab from '../../components/AnalyzeTab.vue'
-import Logo from '../../components/Logo.vue'
-import PlayerTab from '../../components/PlayerTab.vue'
-import { useCurrentRoom } from '../../composables/useCurrentRoom.js'
-import { useI18n } from '../../composables/useI18n.js'
-import { useSettingsStore } from '../../stores/settings.js'
+import AnalyzeTab from '@/components/AnalyzeTab.vue'
+import Logo from '@/components/Logo.vue'
+import PlayerTab from '@/components/PlayerTab.vue'
+import { useCurrentRoom } from '@/composables/useCurrentRoom.js'
+import { useI18n } from '@/composables/useI18n.js'
+import { useSettingsStore } from '@/stores/settings.js'
 
 type Tab = 'analyze' | 'player'
 const tab = ref<Tab>('player')

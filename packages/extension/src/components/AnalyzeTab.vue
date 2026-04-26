@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { MapScore, MatchResponse, PickBanResult } from '../lib/api-client.js'
+import type { MapScore, MatchResponse, PickBanResult } from '@/lib/api-client.js'
 import { ref, watch } from 'vue'
-import { useCurrentRoom } from '../composables/useCurrentRoom.js'
-import { useI18n } from '../composables/useI18n.js'
-import { ApiClient } from '../lib/api-client.js'
-import { useSettingsStore } from '../stores/settings.js'
+import { useCurrentRoom } from '@/composables/useCurrentRoom.js'
+import { useI18n } from '@/composables/useI18n.js'
+import { ApiClient } from '@/lib/api-client.js'
+import { useSettingsStore } from '@/stores/settings.js'
 
 const settings = useSettingsStore()
 const { roomId } = useCurrentRoom()

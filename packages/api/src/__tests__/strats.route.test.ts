@@ -7,7 +7,7 @@ vi.mock('@faceit-coach/core', () => ({
   },
 }))
 
-const { stratsRoute } = await import('../routes/strats.js')
+const { stratsRoute } = await import('@/routes/strats.js')
 
 describe('gET /strats', () => {
   it('should list the map pool', async () => {

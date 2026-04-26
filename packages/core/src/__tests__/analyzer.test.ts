@@ -1,4 +1,4 @@
-import type { PlayerAnalysis } from '../types.js'
+import type { PlayerAnalysis } from '@/types.js'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -6,7 +6,7 @@ import {
   calculateMapScores,
   calculatePlayerWeight,
   computePickBan,
-} from '../services/analyzer.js'
+} from '@/services/analyzer.js'
 
 describe('analyzer', () => {
   describe('calculatePlayerWeight', () => {

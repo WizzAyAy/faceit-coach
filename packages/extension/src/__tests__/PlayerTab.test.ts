@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { browser } from 'wxt/browser'
-import { locale } from '../composables/useI18n.js'
+import { locale } from '@/composables/useI18n.js'
 
 beforeAll(() => {
   locale.value = 'fr'
@@ -16,8 +16,8 @@ vi.mock('../lib/api-client.js', () => ({
 }))
 
 declare const __resetChrome: () => void
-const PlayerTab = (await import('../components/PlayerTab.vue')).default
-const { useSettingsStore } = await import('../stores/settings.js')
+const PlayerTab = (await import('@/components/PlayerTab.vue')).default
+const { useSettingsStore } = await import('@/stores/settings.js')
 
 describe('playerTab', () => {
   beforeEach(() => {

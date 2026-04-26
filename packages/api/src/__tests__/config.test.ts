@@ -12,14 +12,14 @@ describe('config', () => {
 
   it('should throw when FACEIT_API_KEY is missing', async () => {
     vi.stubEnv('FACEIT_API_KEY', '')
-    await expect(import('../config.js')).rejects.toThrow(/FACEIT_API_KEY/)
+    await expect(import('@/config.js')).rejects.toThrow(/FACEIT_API_KEY/)
   })
 
   it('should throw when API_KEY is missing in production', async () => {
     vi.stubEnv('FACEIT_API_KEY', 'key')
     vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('API_KEY', '')
-    await expect(import('../config.js')).rejects.toThrow(/API_KEY/)
+    await expect(import('@/config.js')).rejects.toThrow(/API_KEY/)
   })
 
   it('should apply defaults when only FACEIT_API_KEY is set', async () => {
@@ -30,7 +30,7 @@ describe('config', () => {
     delete process.env.API_CORS_ORIGINS
     delete process.env.API_RATE_LIMIT_PER_MINUTE
 
-    const { config } = await import('../config.js')
+    const { config } = await import('@/config.js')
     expect(config.faceitApiKey).toBe('key')
     expect(config.port).toBe(8787)
     expect(config.corsOrigins).toEqual([])
@@ -45,7 +45,7 @@ describe('config', () => {
     vi.stubEnv('API_KEY', 'secret')
     vi.stubEnv('API_RATE_LIMIT_PER_MINUTE', '120')
 
-    const { config } = await import('../config.js')
+    const { config } = await import('@/config.js')
     expect(config.port).toBe(9090)
     expect(config.corsOrigins).toEqual(['https://a.com', 'https://b.com'])
     expect(config.apiKey).toBe('secret')

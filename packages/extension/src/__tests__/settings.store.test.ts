@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { browser } from 'wxt/browser'
-import { useSettingsStore } from '../stores/settings.js'
+import { useSettingsStore } from '@/stores/settings.js'
 
 declare const __resetChrome: () => void
 

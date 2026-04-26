@@ -1,7 +1,7 @@
 import { CS2_MAP_POOL, MAP_STRATS } from '@faceit-coach/core'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
-import { mapParamsSchema } from '../schemas.js'
+import { mapParamsSchema } from '@/schemas.js'
 
 export const stratsRoute = new Hono()
 

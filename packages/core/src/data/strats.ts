@@ -1,4 +1,4 @@
-import type { MapStrats } from '../types.js'
+import type { MapStrats } from '@/types.js'
 
 export const MAP_STRATS: Record<string, MapStrats> = {
   de_mirage: {

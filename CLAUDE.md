@@ -15,7 +15,7 @@
 - **Extension:** Cross-browser MV3 (Chrome + Firefox) via [WXT](https://wxt.dev) + @wxt-dev/module-vue + Vue 3 + Pinia + VueUse + UnoCSS + unplugin-vue-components. Auto-imports geres par WXT (unimport).
 - **Tests:** Vitest (globals: true)
 - **Lint:** ESLint preset @antfu/eslint-config (+ vue + unocss)
-- **Build:** `tsc` avec project references (composite/incremental)
+- **Build:** `tsc` avec project references (composite/incremental). Les packages Node (core/bot/api) post-traitent leur sortie avec [`tsc-alias`](https://github.com/justkey007/tsc-alias) pour reecrire l'alias `@/*` (mappe sur `src/*` dans chaque package) en chemins relatifs dans `dist/`. Cote tests/dev, vitest/tsx/Vite resolvent l'alias nativement via `tsconfig.paths` et `resolve.alias`. Cross-package imports passent toujours par les noms de workspace (`@faceit-coach/core`).
 - **Hooks:** simple-git-hooks + lint-staged
 - **Package manager:** pnpm 10.33.0
 - **CI:** GitHub Actions (lint, build, typecheck, test — via Turbo)

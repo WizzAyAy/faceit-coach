@@ -18,8 +18,8 @@
   "types": "./dist/index.d.ts",
   "files": ["dist"],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc && tsc-alias",
+    "dev": "concurrently -k -n tsc,alias \"tsc --watch\" \"tsc-alias --watch\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_LOCALE, detectLocale, LOCALES, messages, t } from '../i18n/index.js'
+import { DEFAULT_LOCALE, detectLocale, LOCALES, messages, t } from '@/i18n/index.js'
 
 describe('i18n', () => {
   describe('detectLocale', () => {

@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 import { browser } from 'wxt/browser'
-import { useCurrentRoom } from '../composables/useCurrentRoom.js'
+import { useCurrentRoom } from '@/composables/useCurrentRoom.js'
 
 declare const __resetChrome: () => void
 

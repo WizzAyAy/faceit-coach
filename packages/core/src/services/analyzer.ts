@@ -1,6 +1,6 @@
-import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats, ScoreBreakdown } from '../types.js'
-import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, isInMapPool, normalizeMapName, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '../utils/constants.js'
-import { faceitApi } from './faceit-api.js'
+import type { MapScore, PickBanResult, PlayerAnalysis, PlayerMapStats, ScoreBreakdown } from '@/types.js'
+import { faceitApi } from '@/services/faceit-api.js'
+import { BAN_THRESHOLD, CONFIDENCE, CS2_MAP_POOL, isInMapPool, normalizeMapName, PICK_THRESHOLD, SCORE_WEIGHTS, UNCERTAINTY_THRESHOLD } from '@/utils/constants.js'
 
 export function calculatePlayerWeight(playerElo: number, averageElo: number): number {
   if (averageElo === 0)

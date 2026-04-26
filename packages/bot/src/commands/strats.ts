@@ -1,8 +1,8 @@
 import type { ChatInputCommandInteraction } from 'discord.js'
-import type { BotCommand } from '../types.js'
+import type { BotCommand } from '@/types.js'
 import { CS2_MAP_POOL, detectLocale, MAP_STRATS, messages, t } from '@faceit-coach/core'
 import { SlashCommandBuilder } from 'discord.js'
-import { errorEmbed, stratsEmbeds } from '../utils/embeds.js'
+import { errorEmbed, stratsEmbeds } from '@/utils/embeds.js'
 
 export default {
   data: new SlashCommandBuilder()

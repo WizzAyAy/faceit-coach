@@ -2,14 +2,14 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { browser } from 'wxt/browser'
-import { locale } from '../composables/useI18n.js'
+import { locale } from '@/composables/useI18n.js'
 
 beforeAll(() => {
   locale.value = 'fr'
 })
 
 declare const __resetChrome: () => void
-const Options = (await import('../entrypoints/options/Options.vue')).default
+const Options = (await import('@/entrypoints/options/Options.vue')).default
 
 describe('options', () => {
   beforeEach(() => {
