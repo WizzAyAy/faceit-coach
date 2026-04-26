@@ -10,3 +10,4 @@ coverage/
 .vscode/
 *.pem
 *-extension.key
+docs/superpowers/
