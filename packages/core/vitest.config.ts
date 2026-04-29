@@ -18,6 +18,7 @@ export default defineConfig({
         'src/__tests__/**',
         'src/index.ts',
         'src/types.ts',
+        'src/browser.ts',
       ],
       thresholds: {
         lines: 100,
