@@ -134,6 +134,14 @@ export const fr: DeepStringify<typeof en> = {
       mockModeHint: 'Affiche des données pick/ban factices au lieu d\'appeler l\'API. Utile pour itérer sur l\'UI sans un vrai match en cours.',
       save: 'Enregistrer',
       saved: 'Enregistré ✓',
+      backendSection: 'Backend (prioritaire si URL renseignée)',
+      directSection: 'Mode direct (si URL vide)',
+      directSectionHint: 'L\'extension appelle FACEIT directement. Ta clé reste dans ton navigateur.',
+      faceitApiKey: 'Clé API FACEIT (mode direct)',
+      faceitApiKeyPlaceholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    },
+    error: {
+      noApiConfigured: 'Pas d\'API configurée — ouvre les options de l\'extension pour renseigner une URL de backend ou une clé API FACEIT.',
     },
     panel: {
       title: 'FACEIT Coach',

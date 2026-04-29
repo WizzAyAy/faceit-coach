@@ -128,6 +128,14 @@ export const en = {
       mockModeHint: 'Show fixture pick/ban data instead of calling the API. Use to iterate on the panel UI without a live match.',
       save: 'Save',
       saved: 'Saved ✓',
+      backendSection: 'Backend (priority when URL is set)',
+      directSection: 'Direct mode (when URL is empty)',
+      directSectionHint: 'The extension calls FACEIT directly. Your key stays in your browser.',
+      faceitApiKey: 'FACEIT API Key (direct mode)',
+      faceitApiKeyPlaceholder: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    },
+    error: {
+      noApiConfigured: 'No API configured — open the extension options to set a backend URL or a FACEIT API key.',
     },
     panel: {
       title: 'FACEIT Coach',
