@@ -10,6 +10,7 @@ const { t } = useI18n()
 const apiBaseUrl = ref('')
 const defaultPseudo = ref('')
 const apiKey = ref('')
+const faceitApiKey = ref('')
 const mockMode = ref(false)
 const saved = ref(false)
 
@@ -18,6 +19,7 @@ onMounted(async () => {
   apiBaseUrl.value = settings.apiBaseUrl
   defaultPseudo.value = settings.defaultPseudo
   apiKey.value = settings.apiKey
+  faceitApiKey.value = settings.faceitApiKey
   mockMode.value = settings.mockMode
 })
 
@@ -26,6 +28,7 @@ async function onSave() {
     apiBaseUrl: apiBaseUrl.value.trim(),
     defaultPseudo: defaultPseudo.value.trim(),
     apiKey: apiKey.value.trim(),
+    faceitApiKey: faceitApiKey.value.trim(),
     mockMode: mockMode.value,
   })
   saved.value = true
@@ -50,12 +53,26 @@ async function onSave() {
     </header>
 
     <form class="space-y-4" @submit.prevent="onSave">
+      <p class="text-xs font-semibold tracking-wide uppercase opacity-50">
+        {{ t('extension.options.backendSection') }}
+      </p>
+
       <label class="block text-sm space-y-1">
         <span class="opacity-70">{{ t('extension.options.apiUrl') }}</span>
         <input
           v-model="apiBaseUrl"
           class="w-full border border-white/10 rounded bg-black/30 px-3 py-2 outline-none focus:border-faceit-primary"
           :placeholder="t('extension.options.apiUrlPlaceholder')"
+        >
+      </label>
+
+      <label class="block text-sm space-y-1">
+        <span class="opacity-70">{{ t('extension.options.apiKey') }}</span>
+        <input
+          v-model="apiKey"
+          type="password"
+          class="w-full border border-white/10 rounded bg-black/30 px-3 py-2 outline-none focus:border-faceit-primary"
+          :placeholder="t('extension.options.apiKeyPlaceholder')"
         >
       </label>
 
@@ -68,13 +85,22 @@ async function onSave() {
         >
       </label>
 
+      <div class="border-t border-white/10 pt-2">
+        <p class="text-xs font-semibold tracking-wide uppercase opacity-50">
+          {{ t('extension.options.directSection') }}
+        </p>
+        <p class="mt-1 text-xs opacity-50">
+          {{ t('extension.options.directSectionHint') }}
+        </p>
+      </div>
+
       <label class="block text-sm space-y-1">
-        <span class="opacity-70">{{ t('extension.options.apiKey') }}</span>
+        <span class="opacity-70">{{ t('extension.options.faceitApiKey') }}</span>
         <input
-          v-model="apiKey"
+          v-model="faceitApiKey"
           type="password"
           class="w-full border border-white/10 rounded bg-black/30 px-3 py-2 outline-none focus:border-faceit-primary"
-          :placeholder="t('extension.options.apiKeyPlaceholder')"
+          :placeholder="t('extension.options.faceitApiKeyPlaceholder')"
         >
       </label>
 

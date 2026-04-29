@@ -3,7 +3,7 @@ import type { MapScore, MatchResponse, PickBanResult } from '@/lib/api-client.js
 import { ref, watch } from 'vue'
 import { useCurrentRoom } from '@/composables/useCurrentRoom.js'
 import { useI18n } from '@/composables/useI18n.js'
-import { ApiClient } from '@/lib/api-client.js'
+import { createHybridClient } from '@/lib/api-client.js'
 import { useSettingsStore } from '@/stores/settings.js'
 
 const settings = useSettingsStore()
@@ -23,8 +23,8 @@ function effectiveRoomId(): string {
   return (manualRoomId.value.trim() || roomId.value || '').trim()
 }
 
-function apiClient(): ApiClient {
-  return new ApiClient(settings.apiBaseUrl, settings.apiKey)
+function apiClient() {
+  return createHybridClient(settings)
 }
 
 async function loadMatch() {

@@ -22,15 +22,18 @@ describe('options', () => {
       apiBaseUrl: 'https://api',
       defaultPseudo: 'Me',
       apiKey: 'k',
+      faceitApiKey: 'fk',
       mockMode: true,
     })
     const wrapper = mount(Options)
     await flushPromises()
     const inputs = wrapper.findAll('input')
+    // order: apiBaseUrl, apiKey, defaultPseudo, faceitApiKey, mockMode
     expect((inputs[0].element as HTMLInputElement).value).toBe('https://api')
-    expect((inputs[1].element as HTMLInputElement).value).toBe('Me')
-    expect((inputs[2].element as HTMLInputElement).value).toBe('k')
-    expect((inputs[3].element as HTMLInputElement).checked).toBe(true)
+    expect((inputs[1].element as HTMLInputElement).value).toBe('k')
+    expect((inputs[2].element as HTMLInputElement).value).toBe('Me')
+    expect((inputs[3].element as HTMLInputElement).value).toBe('fk')
+    expect((inputs[4].element as HTMLInputElement).checked).toBe(true)
   })
 
   it('should show "Saved ✓" transiently after submit and persist mockMode', async () => {
@@ -38,10 +41,11 @@ describe('options', () => {
     const wrapper = mount(Options)
     await flushPromises()
     const inputs = wrapper.findAll('input')
+    // order: apiBaseUrl, apiKey, defaultPseudo, faceitApiKey, mockMode
     await inputs[0].setValue(' https://api.new ')
-    await inputs[1].setValue(' me ')
-    await inputs[2].setValue(' key ')
-    await inputs[3].setValue(true)
+    await inputs[1].setValue(' key ')
+    await inputs[2].setValue(' me ')
+    await inputs[4].setValue(true)
     await wrapper.get('form').trigger('submit.prevent')
     await flushPromises()
     expect(wrapper.text()).toContain('Enregistré')

@@ -2,7 +2,7 @@
 import type { PlayerResponse } from '@/lib/api-client.js'
 import { onMounted, ref } from 'vue'
 import { useI18n } from '@/composables/useI18n.js'
-import { ApiClient } from '@/lib/api-client.js'
+import { createHybridClient } from '@/lib/api-client.js'
 import { useSettingsStore } from '@/stores/settings.js'
 
 const settings = useSettingsStore()
@@ -23,7 +23,7 @@ async function search() {
   error.value = ''
   player.value = null
   try {
-    const api = new ApiClient(settings.apiBaseUrl, settings.apiKey)
+    const api = createHybridClient(settings)
     player.value = await api.getPlayer(pseudo.value.trim())
     await settings.save({ defaultPseudo: pseudo.value.trim() })
   }

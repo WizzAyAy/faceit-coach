@@ -11,10 +11,10 @@ beforeAll(() => {
 const getMatchMock = vi.fn()
 const analyzeMock = vi.fn()
 vi.mock('../lib/api-client.js', () => ({
-  ApiClient: class {
-    getMatch = getMatchMock
-    analyze = analyzeMock
-  },
+  createHybridClient: vi.fn(() => ({
+    getMatch: getMatchMock,
+    analyze: analyzeMock,
+  })),
 }))
 
 declare const __resetChrome: () => void

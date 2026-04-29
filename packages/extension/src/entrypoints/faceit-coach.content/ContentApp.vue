@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import { browser } from 'wxt/browser'
 import { useFaceitUser } from '@/composables/useFaceitUser.js'
 import { useI18n } from '@/composables/useI18n.js'
-import { ApiClient } from '@/lib/api-client.js'
+import { createHybridClient } from '@/lib/api-client.js'
 import { FIXTURE_ANALYSIS, FIXTURE_MATCH } from '@/lib/fixtures.js'
 import { parseRoomId } from '@/lib/parse-room-id.js'
 
@@ -15,6 +15,7 @@ interface PersistedSettings {
   apiBaseUrl: string
   defaultPseudo: string
   apiKey: string
+  faceitApiKey: string
   mockMode: boolean
 }
 
@@ -22,6 +23,7 @@ const settings = ref<PersistedSettings>({
   apiBaseUrl: 'http://localhost:8787',
   defaultPseudo: '',
   apiKey: '',
+  faceitApiKey: '',
   mockMode: false,
 })
 const collapsed = ref(false)
@@ -44,12 +46,14 @@ async function loadSettings() {
     'apiBaseUrl',
     'defaultPseudo',
     'apiKey',
+    'faceitApiKey',
     'mockMode',
   ])
   settings.value = {
     apiBaseUrl: typeof stored.apiBaseUrl === 'string' ? stored.apiBaseUrl : 'http://localhost:8787',
     defaultPseudo: typeof stored.defaultPseudo === 'string' ? stored.defaultPseudo : '',
     apiKey: typeof stored.apiKey === 'string' ? stored.apiKey : '',
+    faceitApiKey: typeof stored.faceitApiKey === 'string' ? stored.faceitApiKey : '',
     mockMode: typeof stored.mockMode === 'boolean' ? stored.mockMode : false,
   }
 }
@@ -97,7 +101,7 @@ async function refresh() {
   }
 
   try {
-    const api = new ApiClient(settings.value.apiBaseUrl, settings.value.apiKey)
+    const api = createHybridClient(settings.value)
     const m = await api.getMatch(id)
     match.value = m
     autoSelectTeam(m)
@@ -119,7 +123,7 @@ async function changeTeam(next: 1 | 2) {
   loading.value = true
   error.value = ''
   try {
-    const api = new ApiClient(settings.value.apiBaseUrl, settings.value.apiKey)
+    const api = createHybridClient(settings.value)
     result.value = await api.analyze(roomId.value, next)
   }
   catch (e) {
