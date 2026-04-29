@@ -11,3 +11,5 @@ coverage/
 *.pem
 *-extension.key
 docs/superpowers/
+.pnpm-store/
+

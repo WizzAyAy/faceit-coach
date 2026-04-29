@@ -6,3 +6,5 @@ dist
 .turbo
 *.tsbuildinfo
 packages/extension
+!packages/extension/package.json
+
