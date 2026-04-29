@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { browser } from 'wxt/browser'
 
 export const useSettingsStore = defineStore('settings', () => {
-  const apiBaseUrl = ref<string>('http://localhost:8787')
+  const apiBaseUrl = ref<string>('')
   const defaultPseudo = ref<string>('')
   const apiKey = ref<string>('')
   const faceitApiKey = ref<string>('')

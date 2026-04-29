@@ -58,6 +58,7 @@ export default defineConfig({
       'http://localhost:8787/*',
       'https://api.faceit-coach.example/*',
       'https://www.faceit.com/*',
+      'https://open.faceit.com/*',
     ],
   },
   zip: {

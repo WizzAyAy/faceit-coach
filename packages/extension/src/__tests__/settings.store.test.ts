@@ -13,7 +13,7 @@ describe('settings store', () => {
 
   it('should expose default values before load', () => {
     const store = useSettingsStore()
-    expect(store.apiBaseUrl).toBe('http://localhost:8787')
+    expect(store.apiBaseUrl).toBe('')
     expect(store.defaultPseudo).toBe('')
     expect(store.apiKey).toBe('')
     expect(store.mockMode).toBe(false)
@@ -38,7 +38,7 @@ describe('settings store', () => {
     await browser.storage.sync.set({ apiBaseUrl: 42, defaultPseudo: null, apiKey: true, mockMode: 'yes' })
     const store = useSettingsStore()
     await store.load()
-    expect(store.apiBaseUrl).toBe('http://localhost:8787')
+    expect(store.apiBaseUrl).toBe('')
     expect(store.defaultPseudo).toBe('')
     expect(store.apiKey).toBe('')
     expect(store.mockMode).toBe(false)
