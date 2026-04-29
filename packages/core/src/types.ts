@@ -218,3 +218,31 @@ export interface MapStrats {
     forceBuy: string
   }
 }
+
+export interface MatchPlayer {
+  playerId: string
+  nickname: string
+  avatar: string
+  skillLevel: number
+}
+
+export interface MatchResponse {
+  matchId: string
+  status: string
+  teams: {
+    faction1: { name: string, roster: MatchPlayer[] }
+    faction2: { name: string, roster: MatchPlayer[] }
+  }
+}
+
+export interface PlayerResponse {
+  playerId: string
+  nickname: string
+  avatar: string
+  country: string
+  elo: number
+  level: number
+  region: string
+  lifetime: { winrate: string, kd: string, hs: string, matches: string }
+  maps: { map: string, winrate: number, matches: number, kd: number }[]
+}

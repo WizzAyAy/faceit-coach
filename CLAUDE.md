@@ -66,6 +66,9 @@ src/
 ├── services/
 │   ├── faceit-api.ts       # client FACEIT (init via initFaceitApi(key) au bootstrap)
 │   ├── analyzer.ts         # scoring + pick/ban
+│   ├── analyzer-pure.ts    # fonctions pures extraites (browser-safe)
+│   ├── faceit-browser.ts   # client FACEIT browser-safe (fetch + Bearer token)
+│   ├── mappers.ts          # adaptateurs FaceitMatch→MatchResponse, FaceitPlayer+Stats→PlayerResponse
 │   └── cache.ts            # cache in-memory (node-cache, browser-incompatible)
 ├── utils/constants.ts      # map pool, seuils, TTL, CT bias
 └── __tests__/              # vitest — analyzer, faceit-api, cache, constants, i18n
@@ -114,10 +117,10 @@ src/
 │   ├── useFaceitUser.ts    # detection du pseudo connecte via fetch sur l'endpoint interne FACEIT /api/users/v1/sessions/me (envoie le cookie de session, content script only)
 │   └── useI18n.ts          # wrapper reactif autour de core.t (locale figee depuis navigator.language au load)
 ├── lib/
-│   ├── api-client.ts       # ApiClient (fetch wrapper, envoie X-API-Key si configure) + types re-exportes de core
+│   ├── api-client.ts       # ApiClient (fetch wrapper backend), createHybridClient (router: backend si apiBaseUrl, sinon FACEIT direct) — types PlayerResponse/MatchResponse importés depuis @faceit-coach/core
 │   ├── parse-room-id.ts    # extracteur pur de roomId depuis une URL FACEIT (utilise par popup + content script)
 │   └── fixtures.ts         # FIXTURE_MATCH + FIXTURE_ANALYSIS pour le mode mock (panneau sans backend)
-├── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey, mockMode (persistes via browser.storage.sync)
+├── stores/settings.ts      # pinia — apiBaseUrl, defaultPseudo, apiKey, faceitApiKey, mockMode (persistes via browser.storage.sync)
 ├── assets/                 # logo.svg (source pour generate-icons.mjs, pas inclus dans le build)
 └── __tests__/              # vitest (avec WxtVitest plugin + fakeBrowser) — App, Options, AnalyzeTab, PlayerTab, settings store, api-client, useCurrentRoom, logo
 ```
@@ -218,10 +221,10 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 L'extension cible **Chrome + Firefox** (et derives : Edge, Brave, Opera, Vivaldi consomment le build Chrome). Une seule codebase, deux cibles via `wxt build -b chrome|firefox`.
 
 - **Popup** : 2 onglets.
-  - **Player** : recherche par pseudo → `ApiClient.getPlayer()` → profil + ELO + top 5 maps.
-  - **Analyze** : detecte le `roomId` de l'onglet actif via `useCurrentRoom` (lit `browser.tabs.query`), charge le match via `ApiClient.getMatch()`, auto-selectionne l'equipe via `defaultPseudo`, puis `ApiClient.analyze()` → tableau pick/ban avec tooltip breakdown.
-- **Options** : configurer `apiBaseUrl` (defaut `http://localhost:8787`), `defaultPseudo`, `apiKey` (facultatif, requis si l'API l'impose) et `mockMode` (toggle pour le content script). Persistes via `browser.storage.sync`.
-- **Content script** (`faceit-coach.content`) : injecte un panneau flottant en haut-droite sur les pages de room de `https://www.faceit.com/*`. UI montee en Shadow DOM via `createShadowRootUi` (CSS scoped, zero conflit avec faceit.com). Match large `*://www.faceit.com/*` pour gerer la navigation SPA — le panneau s'affiche/se masque selon `parseRoomId(window.location.href)` via l'evenement `wxt:locationchange`. Reutilise `ApiClient` (avec settings charges directement depuis `browser.storage.sync`, pas de Pinia dans le script).
+  - **Player** : recherche par pseudo → `createHybridClient().getPlayer()` → profil + ELO + top 5 maps.
+  - **Analyze** : detecte le `roomId` de l'onglet actif via `useCurrentRoom` (lit `browser.tabs.query`), charge le match via `createHybridClient().getMatch()`, auto-selectionne l'equipe via `defaultPseudo`, puis `.analyze()` → tableau pick/ban avec tooltip breakdown.
+- **Options** : configurer `apiBaseUrl` (defaut `http://localhost:8787`), `apiKey` (facultatif, requis si l'API l'impose), `defaultPseudo`, `faceitApiKey` (mode direct — cle FACEIT Open Data, prioritaire si `apiBaseUrl` est vide) et `mockMode` (toggle pour le content script). Persistes via `browser.storage.sync`.
+- **Content script** (`faceit-coach.content`) : injecte un panneau flottant en haut-droite sur les pages de room de `https://www.faceit.com/*`. UI montee en Shadow DOM via `createShadowRootUi` (CSS scoped, zero conflit avec faceit.com). Match large `*://www.faceit.com/*` pour gerer la navigation SPA — le panneau s'affiche/se masque selon `parseRoomId(window.location.href)` via l'evenement `wxt:locationchange`. Utilise `createHybridClient` (avec settings charges directement depuis `browser.storage.sync`, pas de Pinia dans le script).
 - **Auto-detection du pseudo** : `useFaceitUser` appelle l'endpoint interne FACEIT `GET /api/users/v1/sessions/me` (relatif, donc le cookie de session de la page est envoye automatiquement) et lit `payload.nickname`. Si l'utilisateur est logge → on utilise ce pseudo. Sinon (401, network error, response shape change) → fallback silencieux sur `settings.defaultPseudo`. Ne jamais logger ou re-emettre la response complete — elle contient des donnees personnelles (email, birthdate, friends list). Quand l'equipe est detectee automatiquement (pseudo present dans un roster), le panneau **masque** completement les rosters/boutons de selection — l'utilisateur voit uniquement la liste pick/ban. Si le pseudo est connu mais absent des rosters, ou si aucun pseudo n'est dispo, l'UI de selection manuelle reste affichee.
 - **Mode mock** (`settings.mockMode`) : si actif, le content script affiche `FIXTURE_MATCH` + `FIXTURE_ANALYSIS` (cf `src/lib/fixtures.ts`) au lieu d'appeler l'API. Permet d'iterer sur l'UI sur n'importe quelle page de room (meme finie) sans backend lance.
 - **Pas de background worker** : tout se passe dans le popup et le content script.

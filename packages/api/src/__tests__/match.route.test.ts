@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@faceit-coach/core', () => ({
-  faceitApi: {
-    getMatch: vi.fn(),
-  },
-}))
+vi.mock('@faceit-coach/core', async (importOriginal) => {
+  const real = await importOriginal<typeof import('@faceit-coach/core')>()
+  return {
+    ...real,
+    faceitApi: {
+      getMatch: vi.fn(),
+    },
+  }
+})
 
 const core = await import('@faceit-coach/core')
 const mockGetMatch = vi.mocked(core.faceitApi.getMatch)

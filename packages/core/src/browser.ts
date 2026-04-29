@@ -14,6 +14,10 @@ export {
 } from '@/services/faceit-browser.js'
 
 export type { FaceitBrowserClient } from '@/services/faceit-browser.js'
+export {
+  faceitMatchToMatchResponse,
+  faceitPlayerToPlayerResponse,
+} from '@/services/mappers.js'
 
 export type {
   FaceitGameStatsItem,
@@ -23,9 +27,12 @@ export type {
   FaceitPlayerStats,
   MapScore,
   MapStrats,
+  MatchPlayer,
+  MatchResponse,
   PickBanResult,
   PlayerAnalysis,
   PlayerMapStats,
+  PlayerResponse,
   ScoreBreakdown,
 } from '@/types.js'
 

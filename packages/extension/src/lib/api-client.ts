@@ -1,16 +1,7 @@
-import type { MapScore, PickBanResult } from '@faceit-coach/core'
+import type { MapScore, MatchResponse, PickBanResult, PlayerResponse } from '@faceit-coach/core'
+import { analyzeLobbyBrowser, createFaceitBrowserClient, faceitMatchToMatchResponse, faceitPlayerToPlayerResponse, monthsAgoTimestamp } from '@faceit-coach/core/browser'
 
-export interface PlayerResponse {
-  playerId: string
-  nickname: string
-  avatar: string
-  country: string
-  elo: number
-  level: number
-  region: string
-  lifetime: { winrate: string, kd: string, hs: string, matches: string }
-  maps: { map: string, winrate: number, matches: number, kd: number }[]
-}
+export type { MatchPlayer, MatchResponse, PlayerResponse } from '@faceit-coach/core'
 
 export interface LiveResponse {
   live: boolean
@@ -20,22 +11,6 @@ export interface LiveResponse {
   analysis?: PickBanResult
   lastMatch?: { matchId: string, finishedAt: number }
   reason?: string
-}
-
-export interface MatchPlayer {
-  playerId: string
-  nickname: string
-  avatar: string
-  skillLevel: number
-}
-
-export interface MatchResponse {
-  matchId: string
-  status: string
-  teams: {
-    faction1: { name: string, roster: MatchPlayer[] }
-    faction2: { name: string, roster: MatchPlayer[] }
-  }
 }
 
 export class ApiClient {
@@ -91,3 +66,39 @@ export class ApiClient {
 }
 
 export type { MapScore, PickBanResult }
+
+export function createHybridClient(settings: {
+  apiBaseUrl: string
+  apiKey: string
+  faceitApiKey: string
+}): ApiClient {
+  if (settings.apiBaseUrl.trim())
+    return new ApiClient(settings.apiBaseUrl, settings.apiKey)
+
+  if (settings.faceitApiKey.trim()) {
+    const faceit = createFaceitBrowserClient(settings.faceitApiKey)
+    return {
+      getPlayer: async (pseudo: string) => {
+        const player = await faceit.getPlayerByNickname(pseudo)
+        const stats = await faceit.getPlayerStats(player.player_id)
+        return faceitPlayerToPlayerResponse(player, stats)
+      },
+      getLive: async (_pseudo: string): Promise<LiveResponse> => {
+        return { live: false }
+      },
+      getMatch: async (roomId: string): Promise<MatchResponse> => {
+        return faceitMatchToMatchResponse(await faceit.getMatch(roomId))
+      },
+      analyze: async (roomId: string, team: 1 | 2, periodMonths?: number): Promise<PickBanResult & { meta?: { periodMonths: number, maxMatchesPerPlayer: number } }> => {
+        const options = periodMonths ? { fromTimestamp: monthsAgoTimestamp(periodMonths) } : {}
+        return analyzeLobbyBrowser(faceit, roomId, team, options)
+      },
+      getStrats: async (_map: string) => {
+        throw new Error('Strats not available in direct mode — configure a backend URL')
+      },
+      health: async () => true,
+    } as unknown as ApiClient
+  }
+
+  throw new Error('No API configured — open the extension options to set a backend URL or a FACEIT API key.')
+}
