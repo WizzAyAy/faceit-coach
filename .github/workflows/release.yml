@@ -37,6 +37,13 @@ jobs:
             fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
           " "$VERSION"
 
+      - name: Zip Chrome Dev (with manifest key for stable extension ID)
+        run: |
+          pnpm --filter @faceit-coach/extension zip:dev
+          VERSION="${GITHUB_REF_NAME#v}"
+          cp "packages/extension/.output/faceit-coach-${VERSION}-chrome.zip" \
+             "packages/extension/.output/faceit-coach-${VERSION}-chrome-dev.zip"
+
       - name: Zip Chrome (MV3)
         run: pnpm --filter @faceit-coach/extension zip
 
@@ -46,8 +53,10 @@ jobs:
       - name: Stage release artifacts
         run: |
           mkdir -p release-artifacts
-          cp packages/extension/.output/faceit-coach-*-chrome.zip "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-chrome.zip"
-          cp packages/extension/.output/faceit-coach-*-firefox.zip "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-firefox.zip"
+          VERSION="${GITHUB_REF_NAME#v}"
+          cp "packages/extension/.output/faceit-coach-${VERSION}-chrome.zip" "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-chrome.zip"
+          cp "packages/extension/.output/faceit-coach-${VERSION}-chrome-dev.zip" "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-chrome-dev.zip"
+          cp "packages/extension/.output/faceit-coach-${VERSION}-firefox.zip" "release-artifacts/faceit-coach-${GITHUB_REF_NAME}-firefox.zip"
           ls -la release-artifacts/
 
       - name: Create GitHub release
@@ -59,11 +68,15 @@ jobs:
           body: |
             ## Installation
 
-            ### Chrome / Edge / Brave / Opera / Vivaldi
-            1. Telecharger `faceit-coach-${{ github.ref_name }}-chrome.zip` ci-dessous et extraire.
+            ### Chrome — mode dev (partage entre potes, cle FACEIT directe)
+            1. Telecharger `faceit-coach-${{ github.ref_name }}-chrome-dev.zip` ci-dessous et extraire.
             2. Ouvrir `chrome://extensions`, activer **Developer mode** (toggle haut-droit).
             3. **Load unpacked** → selectionner le dossier extrait.
-            4. Clic droit sur l'icone de l'extension → **Options**, renseigner `API Base URL` + `Cle API`.
+            4. Clic droit sur l'icone → **Options** : laisser `API URL` vide, coller la cle FACEIT Open Data dans **FACEIT API Key**.
+
+            ### Chrome / Edge / Brave — production (avec backend)
+            1. Telecharger `faceit-coach-${{ github.ref_name }}-chrome.zip` ci-dessous et extraire.
+            2. Meme procedure que ci-dessus, puis renseigner `API Base URL` + `Cle API` dans les Options.
 
             ### Firefox
             1. Telecharger `faceit-coach-${{ github.ref_name }}-firefox.zip` ci-dessous.

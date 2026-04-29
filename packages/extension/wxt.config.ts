@@ -75,8 +75,8 @@ export default defineConfig({
           },
         }
       }
-      else if (wxt.config.command === 'serve') {
-        // key is only needed in dev to maintain a stable extension ID locally.
+      else if (wxt.config.command === 'serve' || wxt.config.mode === 'development') {
+        // key is needed in dev/serve to maintain a stable extension ID.
         // CWS rejects manifests that contain this field.
         manifest.key = CHROME_PUBLIC_KEY
       }
