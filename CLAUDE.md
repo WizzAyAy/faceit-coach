@@ -4,6 +4,7 @@
 
 - **Ce fichier est la source de verite du projet.** Il doit etre mis a jour a chaque modification d'architecture, ajout/suppression de package, commande, service, type ou changement de constante. Toute PR ou modification significative doit se refleter ici.
 - Lire ce fichier en entier avant de modifier le projet.
+- **`CHANGELOG.md` doit toujours etre a jour.** Toute modification destinee a etre release (feature, fix, refactor visible, breaking change) doit ajouter une entree dans la section `[Unreleased]` au format [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) — categories `Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` / `Security`. Au moment du tag `vX.Y.Z`, on renomme `[Unreleased]` en `[X.Y.Z] - YYYY-MM-DD`, on recree une section `[Unreleased]` vide en tete, et on met a jour les liens de comparaison en bas du fichier.
 
 ## Stack
 
