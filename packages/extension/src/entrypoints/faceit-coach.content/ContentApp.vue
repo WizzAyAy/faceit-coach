@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { MapScore, PickBanResult } from '@faceit-coach/core'
 import type { MatchResponse } from '@/lib/api-client.js'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { browser } from 'wxt/browser'
 import { useFaceitUser } from '@/composables/useFaceitUser.js'
 import { useI18n } from '@/composables/useI18n.js'
@@ -19,6 +19,13 @@ interface PersistedSettings {
   mockMode: boolean
 }
 
+interface PanelPosition {
+  top: number
+  left: number
+}
+
+const PANEL_POSITION_KEY = 'panelPosition'
+
 const settings = ref<PersistedSettings>({
   apiBaseUrl: 'http://localhost:8787',
   defaultPseudo: '',
@@ -34,6 +41,108 @@ const match = ref<MatchResponse | null>(null)
 const result = ref<PickBanResult | null>(null)
 const team = ref<1 | 2 | null>(null)
 const teamAutoDetected = ref(false)
+
+const panelEl = ref<HTMLElement | null>(null)
+const position = ref<PanelPosition | null>(null)
+const dragging = ref(false)
+let dragOffsetX = 0
+let dragOffsetY = 0
+
+// Strict clamp: keep the entire panel inside the viewport. If the panel is
+// larger than the viewport (extreme case), pin it to (0, 0) — at least the
+// top-left stays grabable. Returns a new object only when clamping actually
+// changes the values so callers can compare references cheaply.
+function clampPosition(pos: PanelPosition): PanelPosition {
+  const el = panelEl.value
+  if (!el)
+    return pos
+  const width = el.offsetWidth
+  const height = el.offsetHeight
+  const maxLeft = Math.max(0, window.innerWidth - width)
+  const maxTop = Math.max(0, window.innerHeight - height)
+  const left = Math.max(0, Math.min(maxLeft, pos.left))
+  const top = Math.max(0, Math.min(maxTop, pos.top))
+  if (left === pos.left && top === pos.top)
+    return pos
+  return { top, left }
+}
+
+async function loadPosition() {
+  const stored = await browser.storage.local.get(PANEL_POSITION_KEY)
+  const raw = stored[PANEL_POSITION_KEY] as unknown
+  if (
+    raw && typeof raw === 'object'
+    && typeof (raw as PanelPosition).top === 'number'
+    && typeof (raw as PanelPosition).left === 'number'
+  ) {
+    position.value = { top: (raw as PanelPosition).top, left: (raw as PanelPosition).left }
+  }
+}
+
+async function savePosition(pos: PanelPosition) {
+  await browser.storage.local.set({ [PANEL_POSITION_KEY]: pos })
+}
+
+// Re-clamp the current position when the viewport or panel size changes
+// (window resize, content load, collapse/expand). Persists the new position
+// only if clamping actually moved the panel.
+function reflow() {
+  if (!position.value)
+    return
+  const clamped = clampPosition(position.value)
+  if (clamped !== position.value) {
+    position.value = clamped
+    void savePosition(clamped)
+  }
+}
+
+const panelStyle = computed(() => {
+  if (!position.value)
+    return undefined
+  return {
+    top: `${position.value.top}px`,
+    left: `${position.value.left}px`,
+    right: 'auto',
+  }
+})
+
+function onHeaderPointerDown(e: PointerEvent) {
+  if (e.button !== 0)
+    return
+  // Let the collapse button keep its click behavior.
+  if ((e.target as HTMLElement | null)?.closest('.fc-toggle'))
+    return
+  const el = panelEl.value
+  if (!el)
+    return
+  const rect = el.getBoundingClientRect()
+  dragOffsetX = e.clientX - rect.left
+  dragOffsetY = e.clientY - rect.top
+  dragging.value = true
+  position.value = { top: rect.top, left: rect.left }
+  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  e.preventDefault()
+}
+
+function onHeaderPointerMove(e: PointerEvent) {
+  if (!dragging.value)
+    return
+  position.value = clampPosition({
+    left: e.clientX - dragOffsetX,
+    top: e.clientY - dragOffsetY,
+  })
+}
+
+function onHeaderPointerUp(e: PointerEvent) {
+  if (!dragging.value)
+    return
+  dragging.value = false
+  ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+  if (position.value)
+    void savePosition(position.value)
+}
+
+let panelResizeObserver: ResizeObserver | null = null
 
 const { nickname: detectedNickname, ready: detectionReady } = useFaceitUser()
 
@@ -135,8 +244,25 @@ async function changeTeam(next: 1 | 2) {
 }
 
 onMounted(async () => {
-  await Promise.all([loadSettings(), detectionReady])
+  window.addEventListener('resize', reflow)
+  await Promise.all([loadSettings(), loadPosition(), detectionReady])
+  // Clamp the restored position against actually rendered panel dimensions.
+  await nextTick()
+  reflow()
+  // Re-clamp whenever the panel resizes (collapse/expand, content load,
+  // results growing the list). Skip the very first synchronous fire by
+  // tracking whether observe() has run yet — reflow is a no-op on null
+  // position anyway, so the cheapest fix is to just observe directly.
+  if (panelEl.value) {
+    panelResizeObserver = new ResizeObserver(() => reflow())
+    panelResizeObserver.observe(panelEl.value)
+  }
   await refresh()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', reflow)
+  panelResizeObserver?.disconnect()
 })
 
 const sortedMaps = computed<MapScore[]>(() => {
@@ -164,8 +290,19 @@ function decisionFor(m: MapScore): 'pick' | 'ban' | 'neutral' {
 </script>
 
 <template>
-  <div class="fc-root" :class="{ 'fc-collapsed': collapsed }">
-    <header class="fc-header">
+  <div
+    ref="panelEl"
+    class="fc-root"
+    :class="{ 'fc-collapsed': collapsed, 'fc-dragging': dragging }"
+    :style="panelStyle"
+  >
+    <header
+      class="fc-header"
+      @pointerdown="onHeaderPointerDown"
+      @pointermove="onHeaderPointerMove"
+      @pointerup="onHeaderPointerUp"
+      @pointercancel="onHeaderPointerUp"
+    >
       <div class="fc-title">
         <span class="fc-dot" />
         <span>{{ t('extension.panel.title') }}</span>
@@ -258,6 +395,15 @@ function decisionFor(m: MapScore): 'pick' | 'ban' | 'neutral' {
   justify-content: space-between;
   padding: 8px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.fc-dragging .fc-header {
+  cursor: grabbing;
+}
+.fc-dragging {
+  user-select: none;
 }
 .fc-title {
   display: flex;
