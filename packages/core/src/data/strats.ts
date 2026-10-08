@@ -272,4 +272,38 @@ export const MAP_STRATS: Record<string, MapStrats> = {
       ].join('\n'),
     },
   },
+
+  de_vertigo: {
+    pistol: {
+      ct: [
+        '**Setup 2-1-2** — 2 A (Site/Sandbags), 1 mid (Elevator/CT), 2 B (Site/Stairs). Rotation rapide via mid.',
+        '**Utility :** molotov Ramp A au contact, flash B Stairs si push, smoke mid pour couper le split',
+        '**Cle :** Ramp A = choke unique, jeter toute l\'utility dessus si le call tombe',
+      ].join('\n'),
+      t: [
+        '**Rush Ramp A** — 4 Ramp, 1 mid. Smoke Headshot + CT, 2 pop-flashs sur site. Distances courtes, Glocks forts.',
+        '**B Stairs fast** — 4 B, 1 lurk Ramp. Smoke Elevator + flash Stairs. Entry rapide avant rotation mid.',
+      ].join('\n'),
+    },
+    gun: {
+      ct: [
+        '**Default + push Ramp** — 2 A dont 1 joue Ramp avec molotov/HE pour prendre le controle, 1 mid, 2 B. AWP B Stairs ou A Sandbags.',
+        '**Stack A** — 3 A (Ramp/Site/Headshot), 1 mid, 1 B solo avec utility (molotov Stairs). Ramp = 70% des executes.',
+        '**Mid control** — 1 joueur push mid avec flash pour info, retake B via Elevator si split.',
+      ].join('\n'),
+      t: [
+        '**Ramp control → A execute** — Prendre Ramp tot (molotov + smoke Headshot), puis smokes CT + Elevator, 2 flashs, entry Ramp + Sandbags.',
+        '**B execute** — Smokes Elevator + Heaven + CT B, molotov Pillar/Stairs, 2 flashs B. Entry Stairs + B Main simultane.',
+        '**Mid to B split** — 2 mid (prennent Elevator), 3 B Stairs. Smoke CT mid + flash Elevator. Split coordonne.',
+      ].join('\n'),
+      antiEco: [
+        '**CT :** Ne pas push Ramp seul — tenir a distance avec rifles. MAG-7/Nova au site A si rush.',
+        '**T :** Rush Ramp A MAC-10 + flashs, ou fake A + rotate B si stack Ramp.',
+      ].join('\n'),
+      forceBuy: [
+        '**CT :** Famas + molotov Ramp. Stack A, 1 Scout B Stairs.',
+        '**T :** Galils + smoke Headshot + flash Ramp. Execute A minimaliste.',
+      ].join('\n'),
+    },
+  },
 }

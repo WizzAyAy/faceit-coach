@@ -6,6 +6,11 @@ Une entree par version publiee (tag git `vX.Y.Z`). La section `[Unreleased]` reg
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-08
+
+### Added
+- **Core** : ajout de `de_vertigo` au map pool (analyse pick/ban, `/strats`, `GET /strats/:map`) avec ses strategies pistol + gun rounds.
+
 ## [2.1.0] - 2026-05-15
 
 ### Added
@@ -37,7 +42,8 @@ Une entree par version publiee (tag git `vX.Y.Z`). La section `[Unreleased]` reg
 
 Premier release stable. Monorepo `bot` + `api` + `core` + `extension`, support cross-browser (Chrome + Firefox), i18n EN/FR, deploiement par tag git.
 
-[Unreleased]: https://github.com/QuentinMaignan/faceit-coach/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/QuentinMaignan/faceit-coach/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/QuentinMaignan/faceit-coach/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/QuentinMaignan/faceit-coach/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/QuentinMaignan/faceit-coach/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/QuentinMaignan/faceit-coach/compare/v1.0.0...v2.0.0

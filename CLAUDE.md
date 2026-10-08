@@ -196,7 +196,7 @@ Strategies CS2 par map (pistol + gun rounds), donnees statiques.
 
 | Option | Type | Requis | Description |
 |--------|------|--------|-------------|
-| map | string choice | oui | Map CS2 (8 maps du pool) |
+| map | string choice | oui | Map CS2 (9 maps du pool) |
 
 ## Endpoints API
 
@@ -286,7 +286,7 @@ Cache in-memory via `node-cache`. API: `get<T>(key)`, `set<T>(key, value, ttl)`,
 
 ## Constantes cles (core/utils/constants.ts)
 
-**Map pool:** de_mirage, de_inferno, de_nuke, de_anubis, de_ancient, de_dust2, de_overpass, de_cache
+**Map pool:** de_mirage, de_inferno, de_nuke, de_anubis, de_ancient, de_dust2, de_overpass, de_cache, de_vertigo
 
 **Poids du score:** WINRATE 50%, KD 30%, ELO 20%
 

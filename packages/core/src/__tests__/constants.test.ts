@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { CACHE_TTL, CS2_MAP_POOL, isInMapPool, MAP_DISPLAY_NAMES, normalizeMapName, UNCERTAINTY_THRESHOLD } from '@/utils/constants.js'
 
 describe('constants', () => {
-  it('should have 8 maps in the pool', () => {
-    expect(CS2_MAP_POOL).toHaveLength(8)
+  it('should have 9 maps in the pool', () => {
+    expect(CS2_MAP_POOL).toHaveLength(9)
   })
 
   it('should have display names for all maps', () => {

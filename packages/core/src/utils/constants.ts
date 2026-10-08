@@ -7,6 +7,7 @@ export const CS2_MAP_POOL = [
   'de_dust2',
   'de_overpass',
   'de_cache',
+  'de_vertigo',
 ] as const
 
 export type CS2Map = typeof CS2_MAP_POOL[number]
@@ -20,6 +21,7 @@ export const MAP_DISPLAY_NAMES: Record<string, string> = {
   de_dust2: 'Dust2',
   de_overpass: 'Overpass',
   de_cache: 'Cache',
+  de_vertigo: 'Vertigo',
 }
 
 const MAP_NAME_TO_ID: Record<string, string> = Object.fromEntries(

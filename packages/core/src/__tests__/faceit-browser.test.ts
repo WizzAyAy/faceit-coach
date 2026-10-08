@@ -222,7 +222,7 @@ describe('analyzeLobbyBrowser', () => {
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room1', 1)
     expect(result).toHaveProperty('allMaps')
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
     const mirage = result.allMaps.find(m => m.map === 'de_mirage')
     expect(mirage).toBeDefined()
     expect(mirage!.advantage).toBeGreaterThan(0)
@@ -249,7 +249,7 @@ describe('analyzeLobbyBrowser', () => {
     mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(match) })
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room2', 1)
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
     result.allMaps.forEach(m => expect(m.advantage).toBe(0))
   })
 
@@ -324,7 +324,7 @@ describe('analyzeLobbyBrowser', () => {
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ items: [{ stats: lowercaseStat }] }) })
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room5', 1)
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
   })
 
   it('should use elo 1000 fallback for player without cs2 games', async () => {
@@ -352,7 +352,7 @@ describe('analyzeLobbyBrowser', () => {
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ items: [] }) })
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room6', 1)
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
   })
 
   it('should handle zero K/D and headshots (covers || 0 fallback)', async () => {
@@ -380,7 +380,7 @@ describe('analyzeLobbyBrowser', () => {
       .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ items: [{ stats: zeroStat }] }) })
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room7', 1)
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
   })
 
   it('should skip game stats with maps not in pool', async () => {
@@ -410,7 +410,7 @@ describe('analyzeLobbyBrowser', () => {
 
     const client = createFaceitBrowserClient('key')
     const result = await analyzeLobbyBrowser(client, 'room3', 1)
-    expect(result.allMaps).toHaveLength(8)
+    expect(result.allMaps).toHaveLength(9)
     const allNeutral = result.allMaps.every(m => m.advantage === 0)
     expect(allNeutral).toBe(true)
   })
